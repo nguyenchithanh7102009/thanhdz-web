@@ -3,7 +3,7 @@
 document.addEventListener('DOMContentLoaded', initializeGameLogic);
 
 // --- CẤU HÌNH GAME ---
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'https://api.coinwit.net';
 const BETTING_TIME = 50; // Thời gian đặt cược (50 -> 1)
 const ROLL_START_TIME = 0; // Bắt đầu lắc (0 -> -6)
 const ANNOUNCE_START_TIME = -6; // Bắt đầu công bố (-6 -> -10)
