@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thẻ ngân hàng - Xác minh tài khoản</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // KHAI BÁO CÁC MÀU CHỦ ĐẠO
+                        'custom-accent': '#E0E0E0', // TRẮNG/XÁM SÁNG (Thay thế Vàng)
+                        'dark-bg': '#121212', // Nền tối
+                        'dark-card': '#1E1E1E', // Nền thẻ tối
+                        'dark-input': '#333333', // Nền input tối
+                        'dark-text': '#E0E0E0', // Chữ sáng
+                        'warning-bg': '#3A1E1E', // Nền cảnh báo tối (Đỏ/Xám)
+                        'green-accent': '#28A745', // Xanh lá
+                        'red-accent': '#DC143C', // Đỏ
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Đảm bảo toàn bộ trang là dark mode */
+        body {
+            background-color: theme('colors.dark-bg');
+            color: theme('colors.dark-text');
+            font-family: theme('fontFamily.sans');
+        }
+        /* Fix cho input type number trên webkit (Chrome, Safari) */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        /* Scrollbar tùy chỉnh cho danh sách ngân hàng */
+        #bankListContainer::-webkit-scrollbar {
+            width: 6px;
+        }
+        #bankListContainer::-webkit-scrollbar-thumb {
+            background-color: #A0A0A0; /* Màu xám cho scrollbar */
+            border-radius: 6px;
+        }
+        #bankListContainer::-webkit-scrollbar-track {
+            background-color: #333333;
+        }
+        
+        /* *************************************************** */
+        /* MODAL (CENTERED) */
+        /* *************************************************** */
+        #bankModal {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+        #bankModal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        #modalContent {
+            transform: scale(0.95);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        #bankModal.show #modalContent {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        /* Tắt input khi ở chế độ Read-only */
+        .input-locked {
+             background-color: #2a2a2a !important;
+             color: theme('colors.dark-text') !important; /* Trắng khi khóa */
+             font-weight: bold !important;
+             cursor: default !important;
+        }
+        button.input-locked {
+             pointer-events: none;
+             opacity: 0.7;
+        }
+
+        /* Nút chính (Xác nhận liên kết) */
+        .btn-primary {
+             background-color: theme('colors.green-accent');
+             box-shadow: 0 4px theme('colors.green-800/50');
+        }
+
+        /* Tinh chỉnh dropdown */
+        .w-full.text-left.p-3.rounded-lg.bg-dark-input.hover\:bg-gray-700.transition.duration-150.ease-in-out.text-white:hover {
+            background-color: theme('colors.dark-input') !important;
+        }
+        
+        /* Sửa màu của Modal Header/List item */
+        .bank-modal-header h2 {
+            color: theme('colors.dark-text');
+        }
+        #bankSearch, .bank-option-item {
+             color: theme('colors.dark-text') !important;
+        }
+        
+        /* Nút Sửa (Edit) */
+        .edit-icon-btn {
+             padding: 8px 12px;
+             border-radius: 8px;
+             transition: all 0.2s;
+             /* Đặt vị trí góc trên bên phải */
+             position: absolute;
+             right: 15px;
+             top: 15px;
+             background-color: transparent;
+             border: none;
+             z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+<div class="min-h-screen bg-dark-bg">
+
+    <header class="flex items-center p-4 border-b border-gray-700 bg-dark-card shadow-lg">
+    
+    <button class="text-white hover:text-gray-400 focus:outline-none z-20" onclick="window.history.back()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+    </button>
+    
+    <h1 class="text-lg font-semibold text-white flex-grow text-center ml-[-24px]">Thẻ ngân hàng</h1>
+    
+    <button class="text-white hover:text-gray-400 focus:outline-none edit-icon-btn" id="edit-icon-btn" onclick="allowEdit()" style="visibility: hidden;">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+        </svg>
+    </button>
+</header>
+
+    <main class="p-4 space-y-6">
+        
+        <div id="kyc-warning" class="p-4 rounded-lg text-sm font-medium border border-red-600 bg-warning-bg text-white flex items-start space-x-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mt-0.5 flex-shrink-0 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8.257 3.328a1 1 0 011.986 0l5.5 10a1 1 0 01-.482 1.342A1 1 0 0115 15h-10a1 1 0 01-.493-1.842l5.5-10zM10 13a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+            </svg>
+            <p>
+                <span class="font-bold">Tên thật phải khớp với tên chủ tài khoản ngân hàng.</span>
+            </p>
+        </div>
+
+        <form id="bankForm" class="space-y-6">
+
+            <div class="space-y-2">
+                <label for="bankNameDisplay" class="text-sm font-medium text-gray-400 block">Ngân hàng</label>
+                <button type="button" id="bankNameDisplay"
+                        class="w-full flex justify-between items-center p-3 rounded-lg bg-dark-input border border-gray-700 hover:border-white transition duration-150 ease-in-out"
+                        onclick="toggleBankModal(true)">
+                    <span id="selectedBankText" class="text-white">-- Vui lòng chọn Ngân hàng --</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <input type="hidden" id="bankNameValue" required>
+            </div>
+
+            <div class="space-y-2">
+                <label for="accountNumber" class="text-sm font-medium text-gray-400 block">Số tài khoản Ngân Hàng</label>
+                <input type="text" id="accountNumber" placeholder="Nhập số tài khoản ngân hàng (Chỉ nhập số)" required
+                       class="w-full p-3 rounded-lg bg-dark-input border border-gray-700 focus:border-white focus:ring focus:ring-white focus:ring-opacity-50 text-white placeholder-gray-500 transition duration-150 ease-in-out">
+            </div>
+
+            <div class="space-y-2">
+                <label for="fullName" class="text-sm font-medium text-gray-400 block">Họ Tên</label>
+                <input type="text" id="fullName" placeholder="Nhập tên đầy đủ (Không dấu, in hoa)" required
+                       class="w-full p-3 rounded-lg bg-dark-input border border-gray-700 focus:border-white focus:ring focus:ring-white focus:ring-opacity-50 text-white placeholder-gray-500 transition duration-150 ease-in-out">
+            </div>
+            
+            <button type="submit" id="bind-btn"
+                    class="w-full py-4 mt-8 rounded-lg font-bold text-black text-lg bg-green-accent hover:bg-green-700 transition duration-200 shadow-xl shadow-green-800/50">
+                Xác nhận Liên kết
+            </button>
+
+        </form>
+
+    </main>
+
+    <div id="bankModal" class="fixed inset-0 bg-black bg-opacity-75 z-50 hidden transition-opacity duration-300 flex items-center justify-center p-4">
+        <div class="bg-dark-card w-full max-w-md p-6 rounded-2xl shadow-xl transform transition-all duration-300 scale-95" id="modalContent">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-700">
+                <h2 class="text-xl font-semibold text-white">Chọn Ngân hàng</h2>
+                <button class="text-gray-400 hover:text-white" onclick="toggleBankModal(false)">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <input type="text" id="bankSearch" placeholder="Tìm kiếm ngân hàng..."
+                   class="w-full p-3 mb-4 rounded-lg bg-dark-input border border-gray-700 focus:border-white focus:ring focus:ring-white focus:ring-opacity-50 text-white placeholder-gray-500 transition duration-150 ease-in-out"
+                   onkeyup="filterBanks()">
+
+            <div id="bankListContainer" class="max-h-80 overflow-y-auto space-y-2 pr-2">
+                </div>
+        </div>
+    </div>
+
+    <div id="messageBox" class="fixed inset-x-4 bottom-4 p-4 rounded-lg text-center text-white font-medium shadow-2xl z-50 hidden bg-green-600">
+        </div>
+
+</div>
+
+<script>
+    // --- KHAI BÁO BIẾN CỐT LÕI ---
+    const API_BASE_URL = 'http://localhost:3000/api';
+    let selectedBankName = "";
+    let selectedBankCode = "";
+    const LAST_EDIT_KEY = 'lastBankEditTime';
+
+    // --- DANH SÁCH 49 NGÂN HÀNG VIỆT NAM ---
+    const VIETNAMESE_BANKS = [
+        { code: "VCB", name: "Vietcombank" },
+        { code: "VPB", name: "VPBank" },
+        { code: "TCB", name: "Techcombank" },
+        { code: "BIDV", name: "BIDV" },
+        { code: "MBB", name: "MBBank" },
+        { code: "ICB", name: "VietinBank" },
+        { code: "AGR", name: "Agribank" },
+        { code: "ACB", name: "ACB" },
+        { code: "SHB", name: "SHB" },
+        { code: "HDB", name: "HDBank" },
+        { code: "LVB", name: "LienVietPostBank" },
+        { code: "VIB", name: "VIB" },
+        { code: "SEAB", name: "SeABank" },
+        { code: "TPB", name: "TPBank" },
+        { code: "MSB", name: "MSB" },
+        { code: "VBSP", name: "VBSP" },
+        { code: "OCB", name: "OCB" },
+        { code: "STB", name: "Sacombank" },
+        { code: "EIB", name: "Eximbank" },
+        { code: "SCB", name: "SCB" },
+        { code: "VDB", name: "VDB" },
+        { code: "NAB", name: "Nam A Bank" },
+        { code: "WBA", name: "Woori Bank" },
+        { code: "NCB", name: "NCB" },
+        { code: "ABB", name: "ABBANK" },
+        { code: "UOB", name: "UOB" },
+        { code: "BAB", name: "Bac A Bank" },
+        { code: "PVB", name: "PVcomBank" },
+        { code: "HSBC", name: "HSBC" },
+        { code: "VAB", name: "Vietbank" },
+        { code: "PBVN", name: "Public Bank VN" },
+        { code: "SCBVL", name: "Standard Chartered" },
+        { code: "SHBVN", name: "Shinhan Bank" },
+        { code: "BVB", name: "BaoViet Bank" },
+        { code: "VBA", name: "VietABank" },
+        { code: "ANZ", name: "ANZ Bank" },
+        { code: "PGB", name: "PGBank" },
+        { code: "CIMB", name: "CIMB" },
+        { code: "KLB", name: "Kienlongbank" },
+        { code: "SGB", name: "SAIGONBANK" },
+        { code: "IVB", name: "Indovina Bank" },
+        { code: "BVBV", name: "BAOVIET Bank" },
+        { code: "VRB", name: "VRB" },
+        { code: "COOP", name: "Co-opBank" },
+        { code: "HLBVN", name: "Hong Leong Bank" },
+        { code: "VIB", name: "VIB" },
+        { code: "MBV", name: "MBV" },
+        { code: "GPB", name: "GPBank" },
+        { code: "VCBN", name: "VCB Neo" }
+    ];
+
+    // --- LẤY CÁC PHẦN TỬ DOM ---
+    const bankModal = document.getElementById('bankModal');
+    const modalContent = document.getElementById('modalContent');
+    const bankListContainer = document.getElementById('bankListContainer');
+    const selectedBankText = document.getElementById('selectedBankText');
+    const bankNameValue = document.getElementById('bankNameValue');
+    const bankSearch = document.getElementById('bankSearch');
+    const bankForm = document.getElementById('bankForm');
+    const fullNameInput = document.getElementById('fullName');
+    const accountNumberInput = document.getElementById('accountNumber');
+    const bankNameDisplay = document.getElementById('bankNameDisplay');
+    const bindButton = document.getElementById('bind-btn');
+    const editIcon = document.getElementById('edit-icon-btn');
+    const kycWarning = document.getElementById('kyc-warning');
+
+    // --- CÁC HÀM XỬ LÝ SỰ KIỆN ---
+
+    // Hàm chuẩn hóa tên (Fix: Cho phép space, chạy trên blur)
+    function standardizeName(input) {
+        let normalized = input.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        // Giữ lại chữ cái và khoảng trắng (Sửa lỗi không space được)
+        normalized = normalized.replace(/[^a-zA-Z\s]/g, "");
+        return normalized.toUpperCase();
+    }
+
+    // Hàm hiển thị thông báo tùy chỉnh (thay thế alert)
+    function showMessage(text, duration = 3000, bgColor = 'bg-green-600') {
+        const messageBox = document.getElementById('messageBox');
+        messageBox.textContent = text;
+        messageBox.className = `fixed inset-x-4 bottom-4 p-4 rounded-lg text-center text-white font-medium shadow-2xl z-50 ${bgColor}`;
+        messageBox.classList.remove('hidden');
+        setTimeout(() => {
+            messageBox.classList.add('hidden');
+        }, duration);
+    }
+
+    // Hàm tạo danh sách ngân hàng trong modal
+    function renderBankList(banks) {
+        bankListContainer.innerHTML = '';
+        banks.forEach(bank => {
+            const button = document.createElement('button');
+            // CÁC STYLE TÙY CHỈNH: BỎ MÀU VÀNG/NỀN TRẮNG
+            button.className = 'w-full text-left p-3 rounded-lg bg-dark-input hover:bg-gray-700 transition duration-150 ease-in-out text-white';
+            button.textContent = bank.name;
+            button.setAttribute('data-code', bank.code);
+            button.onclick = () => selectBank(bank.code, bank.name);
+            bankListContainer.appendChild(button);
+        });
+    }
+
+    // Hàm lọc danh sách ngân hàng khi tìm kiếm
+    function filterBanks() {
+        const query = bankSearch.value.toLowerCase();
+        const filteredBanks = VIETNAMESE_BANKS.filter(bank =>
+            bank.name.toLowerCase().includes(query) || bank.code.toLowerCase().includes(query)
+        );
+        renderBankList(filteredBanks);
+    }
+
+    // Hàm chọn ngân hàng
+    function selectBank(code, name) {
+        selectedBankText.textContent = name;
+        selectedBankText.classList.remove('text-gray-500');
+        bankNameValue.value = name; // LƯU TÊN ĐẦY ĐỦ
+        selectedBankName = name;
+        selectedBankCode = code;
+        toggleBankModal(false);
+    }
+
+    // Hàm bật/tắt modal (ĐÃ SỬA)
+    function toggleBankModal(show) {
+        if (show) {
+            bankModal.classList.remove('hidden');
+            setTimeout(() => {
+                bankModal.classList.add('show');
+                modalContent.classList.add('show');
+            }, 10);
+            
+            renderBankList(VIETNAMESE_BANKS);
+            bankSearch.value = '';
+            bankSearch.focus();
+        } else {
+            bankModal.classList.remove('show');
+            modalContent.classList.remove('show');
+            setTimeout(() => {
+                bankModal.classList.add('hidden');
+            }, 300);
+        }
+    }
+    
+    // Hàm kiểm tra giới hạn sửa (24 giờ)
+    function checkEditLimit() {
+        const lastEditTime = localStorage.getItem(LAST_EDIT_KEY);
+        const now = Date.now();
+        const oneDay = 24 * 60 * 60 * 1000;
+
+        if (lastEditTime && (now - lastEditTime < oneDay)) {
+            const timeRemaining = oneDay - (now - lastEditTime);
+            const hours = Math.floor(timeRemaining / (60 * 60 * 1000));
+            const minutes = Math.floor((timeRemaining % (60 * 60 * 1000)) / (60 * 1000));
+            showMessage(`Bạn chỉ được sửa 1 lần/24h. Vui lòng thử lại sau ${hours}h ${minutes}m.`, 5000, 'bg-red-600');
+            return false;
+        }
+        return true;
+    }
+
+    // HÀM CHO PHÉP SỬA (KHI NHẤN NÚT CÂY BÚT)
+    window.allowEdit = function() {
+        // Chỉ cho phép sửa nếu đang ở chế độ xem (khóa)
+        if (!fullNameInput.classList.contains('input-locked')) {
+            return;
+        }
+
+        if (!checkEditLimit()) {
+            return;
+        }
+        
+        // Mở khóa các trường nhập liệu
+        fullNameInput.readOnly = false;
+        accountNumberInput.readOnly = false;
+        bankNameDisplay.disabled = false;
+        
+        // Xóa class khóa
+        fullNameInput.classList.remove('input-locked');
+        accountNumberInput.classList.remove('input-locked');
+        bankNameDisplay.classList.remove('input-locked');
+        
+        // Hiện nút Xác nhận và ẩn nút Sửa
+        bindButton.style.display = 'block';
+        editIcon.style.visibility = 'hidden';
+        
+        showMessage('Thông tin đã được mở khóa để chỉnh sửa. Lưu ý: Chỉ được sửa 1 lần/24h.', 4000, 'bg-red-600');
+    }
+
+
+    // --- HÀM KHỞI TẠO CHÍNH (ĐÃ THÊM LOGIC KYC) ---
+    
+    async function initializePage() {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            showMessage("Bạn chưa đăng nhập. Đang chuyển hướng...", 2000, 'bg-red-600');
+            setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/user/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const userData = await response.json();
+
+            // Gắn sự kiện tự động chuẩn hóa tên (chỉ khi rời khỏi trường)
+            fullNameInput.addEventListener('blur', (e) => {
+                if (e.target.value) {
+                    e.target.value = standardizeName(e.target.value);
+                }
+            });
+            
+            // Khởi tạo biến global với dữ liệu đã lưu
+            if (userData.bankName) selectedBankName = userData.bankName;
+            if (userData.bankCode) selectedBankCode = userData.bankCode;
+
+
+            if (response.ok && userData.isNameVerified) {
+                // *** CHẾ ĐỘ XEM (ĐÃ XÁC MINH) ***
+                
+                fullNameInput.value = userData.fullName || 'N/A';
+                accountNumberInput.value = userData.accountNumber || 'N/A';
+                selectedBankText.textContent = userData.bankName || 'N/A';
+                selectedBankText.classList.remove('text-gray-500');
+
+                // Khóa giao diện
+                fullNameInput.readOnly = true;
+                accountNumberInput.readOnly = true;
+                bankNameDisplay.disabled = true;
+                bindButton.style.display = 'none';
+                editIcon.style.visibility = 'visible';
+
+                // Thêm class 'input-locked' cho các trường bị khóa
+                fullNameInput.classList.add('input-locked');
+                accountNumberInput.classList.add('input-locked');
+                bankNameDisplay.classList.add('input-locked');
+                
+                // Kiểm tra giới hạn sửa để ẩn/hiện bút chì
+                if (!checkEditLimit()) {
+                    editIcon.style.visibility = 'hidden';
+                }
+
+            } else {
+                // *** CHẾ ĐỘ CHỈNH SỬA (CHƯA XÁC MINH) ***
+                editIcon.style.visibility = 'hidden';
+                bindButton.style.display = 'block';
+                // KHÔNG GẮN SỰ KIỆN SUBMIT TẠI ĐÂY NỮA
+            }
+
+            // *** GẮN SỰ KIỆN SUBMIT Ở ĐÂY CHO CẢ HAI TRƯỜNG HỢP ***
+            bankForm.addEventListener('submit', handleFormSubmit);
+
+        } catch (error) {
+            console.error("Lỗi tải thông tin User:", error);
+            showMessage("Lỗi tải thông tin User. Vui lòng kiểm tra Server.", 4000, 'bg-red-600');
+            bankForm.style.display = 'none';
+        }
+    }
+
+    // Xử lý sự kiện submit form (KẾT NỐI API)
+    async function handleFormSubmit(e) {
+        e.preventDefault();
+        
+        // LẤY DỮ LIỆU MỚI TỪ INPUTS (GIÁ TRỊ HIỆN TẠI)
+        const fullName = fullNameInput.value.toUpperCase();
+        // Lấy tên ngân hàng hiện tại (Đã fix: Lấy từ biến global đã được khởi tạo/cập nhật)
+        const bankName = selectedBankName;
+        const accountNumber = accountNumberInput.value;
+        const token = localStorage.getItem('authToken');
+
+        // KIỂM TRA TÍNH HỢP LỆ
+        if (!bankName || !accountNumber || !fullName) {
+            showMessage("Vui lòng điền đầy đủ Tên Ngân hàng, Số tài khoản và Họ tên.", 3000, 'bg-red-600');
+            return;
+        }
+        if (fullName.length < 5 || /[^A-Z\s]/.test(fullName)) {
+             showMessage('Họ tên không hợp lệ. Vui lòng nhập IN HOA, không dấu (ít nhất 5 ký tự).', 3000, 'bg-red-600');
+             return;
+        }
+        if (/[^0-9]/.test(accountNumber)) {
+             showMessage('Số tài khoản không hợp lệ. Vui lòng chỉ nhập các ký tự số.', 3000, 'bg-red-600');
+             return;
+        }
+        
+        bindButton.disabled = true;
+        bindButton.textContent = "Đang xử lý...";
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/wallet/bind-card`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                // GỬI DỮ LIỆU MỚI LÊN SERVER (Sử dụng giá trị mới nhất từ các biến)
+                body: JSON.stringify({ bankName: bankName, accountNumber: accountNumber, fullName: fullName })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Ghi thời gian sửa thành công vào localStorage
+                localStorage.setItem(LAST_EDIT_KEY, Date.now());
+                
+                showMessage('Cập nhật thành công!', 3000, 'bg-green-600');
+                
+                // Tải lại trang để hiển thị chế độ khóa với dữ liệu mới
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                showMessage(`Lỗi: ${data.message || 'Không thể cập nhật thẻ.'}`, 3000, 'bg-red-600');
+            }
+
+        } catch (error) {
+            showMessage('Lỗi kết nối Server. Vui lòng kiểm tra Server Node.js.', 4000, 'bg-red-600');
+        } finally {
+            bindButton.disabled = false;
+            bindButton.textContent = "Xác nhận Liên kết";
+        }
+    }
+
+    // Bắt đầu
+    document.addEventListener('DOMContentLoaded', initializePage);
+</script>
+</body>
+</html>

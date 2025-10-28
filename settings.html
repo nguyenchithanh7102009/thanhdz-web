@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cài đặt | CoinVid Clone</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+    <style>
+        /* CSS Riêng cho trang Cài đặt */
+        
+        body {
+            background-color: #0d1117; 
+            padding-bottom: 20px; 
+        }
+
+        /* Header cố định */
+        .settings-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #161b22;
+            border-bottom: 1px solid #2d3840;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .settings-header .back-arrow {
+            color: #e6edf3;
+            font-size: 1.5rem;
+            margin-right: 20px;
+            cursor: pointer;
+        }
+        .settings-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #e6edf3;
+            font-weight: 600;
+            flex-grow: 1;
+            text-align: center;
+            transform: translateX(-15px);
+        }
+        
+        .settings-content {
+            padding: 15px;
+        }
+
+        /* Menu Cài đặt */
+        .settings-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            background-color: #161b22;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #2d3840;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+        .menu-item:hover {
+            background-color: #1f2730;
+        }
+        
+        .item-left {
+            color: #e6edf3;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        .item-right {
+            color: #b0c2d4;
+            font-size: 1rem;
+        }
+
+        /* Nút Đăng xuất */
+        #logout-btn {
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            color: #161b22;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            width: 100%;
+            font-weight: bold;
+            font-size: 17px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="settings-header">
+        <i class="fas fa-arrow-left back-arrow" onclick="window.history.back()"></i>
+        <h2>Cài đặt</h2>
+    </div>
+
+    <div class="settings-content">
+        
+        <div class="settings-menu">
+            <div class="menu-item" onclick="alert('Đã xóa bộ nhớ cache (Giả lập)')">
+                <span class="item-left">Xóa bộ nhớ cache</span>
+                <i class="fas fa-chevron-right item-right"></i>
+            </div>
+            <div class="menu-item" onclick="alert('Mở trang Nhận xét/Phản hồi')">
+                <span class="item-left">Nhận xét</span>
+                <i class="fas fa-chevron-right item-right"></i>
+            </div>
+            <div class="menu-item" onclick="alert('Mở cài đặt Thông báo')">
+                <span class="item-left">Thông báo</span>
+                <i class="fas fa-chevron-right item-right"></i>
+            </div>
+            <div class="menu-item" onclick="alert('Mở trang Trợ giúp')">
+                <span class="item-left">Trợ giúp</span>
+                <i class="fas fa-chevron-right item-right"></i>
+            </div>
+        </div>
+
+        <button id="logout-btn" onclick="handleLogout()">Đăng xuất</button>
+    </div>
+    
+    <script>
+        // **********************************************
+        // CHỨC NĂNG ĐĂNG XUẤT (LOGOUT)
+        // **********************************************
+        function handleLogout() {
+            // Xác nhận hành động
+            const confirmLogout = confirm("Bạn có chắc chắn muốn đăng xuất không?");
+            if (confirmLogout) {
+                // Xóa token xác thực và thông tin người dùng khỏi LocalStorage
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('lastUsername');
+                localStorage.removeItem('userAvatarUrl');
+                
+                alert("Bạn đã đăng xuất thành công.");
+                
+                // Chuyển hướng người dùng về trang đăng nhập
+                window.location.href = 'login.html'; 
+            }
+        }
+    </script>
+</body>
+</html>

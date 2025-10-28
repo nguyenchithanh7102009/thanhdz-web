@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rút USDT | CoinVid Clone</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+    <style>
+        /* CSS Riêng cho trang Rút Crypto (THIẾT KẾ SANG TRỌNG) */
+        
+        body {
+            background-color: #0d1117; 
+            padding-bottom: 20px;
+        }
+
+        .crypto-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #161b22;
+            border-bottom: 1px solid #2d3840;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .crypto-header .back-arrow {
+            color: #e6edf3;
+            font-size: 1.5rem;
+            margin-right: 20px;
+            cursor: pointer;
+        }
+        .crypto-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #e6edf3;
+            font-weight: 600;
+            flex-grow: 1;
+            text-align: center;
+            transform: translateX(-15px);
+        }
+
+        .crypto-content {
+            padding: 15px;
+        }
+
+        /* Khu vực Số dư và Giới hạn (SANG TRỌNG) */
+        .limit-box {
+            /* THIẾT KẾ HỘP NỔI BẬT: Gradient và Bo góc lớn */
+            background: linear-gradient(145deg, #2d3840, #3d495a);
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); /* Shadow nổi */
+            position: relative;
+            border: 1px solid #4a4a4a;
+        }
+        .limit-box .info-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #FFD700;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        /* THIẾT LẬP CHỮ */
+        .balance-label {
+            color: #b0c2d4; 
+            font-weight: 500;
+            font-size: 15px;
+        }
+        #available-balance-display {
+            /* Font lớn, màu vàng có bóng sáng nhẹ */
+            font-size: 2.2rem; 
+            font-weight: 900;
+            color: #FFD700; 
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+            margin: 5px 0 15px 0;
+            display: block;
+            text-align: left;
+        }
+        .limit-box p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #e6edf3; 
+            display: flex;
+            justify-content: space-between;
+        }
+        .limit-box span:last-child {
+            color: #b0c2d4; 
+            font-weight: 500;
+        }
+        .error-text {
+            color: #dc3545 !important;
+            font-size: 1.6rem !important;
+            text-shadow: none !important;
+        }
+        
+        /* Input/Form Style (NÂNG CAO) */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            color: #b0c2d4; 
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 5px;
+            display: block;
+        }
+        /* Style cho Input/Display field chung */
+        .form-control-input, .amount-input-group input, #fund-password {
+            width: 100%;
+            padding: 15px;
+            background-color: #0d1117; 
+            border: 1px solid #3d495a;
+            border-radius: 8px;
+            color: #e6edf3;
+            font-size: 16px;
+            box-sizing: border-box;
+            margin-top: 5px;
+            transition: border-color 0.2s;
+        }
+        .form-control-input:focus-within, .amount-input-group input:focus {
+            border-color: #FFD700; /* Viền vàng khi focus */
+            outline: none;
+        }
+
+        /* Input Số tiền rút */
+        .amount-input-group {
+            position: relative;
+        }
+        .amount-input-group input[type="number"] {
+             padding-right: 70px;
+        }
+
+        .amount-input-group .max-btn {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #555;
+            color: #FFD700;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* Chi tiết Phí/Nhận được */
+        .fee-details {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #2d3840;
+            display: flex;
+            flex-direction: column;
+            gap: 12px; 
+        }
+        .fee-details p {
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+            color: #b0c2d4;
+        }
+        .fee-details span:last-child {
+            color: #e6edf3;
+            font-weight: bold;
+        }
+        #fee-amount { color: #dc3545; } 
+        #receive-amount { color: #90ee90; font-weight: 700 !important; } 
+
+        /* Nút Rút */
+        #withdraw-confirm-btn {
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            color: #161b22;
+            padding: 18px;
+            border: none;
+            border-radius: 8px;
+            width: 100%;
+            font-weight: 900;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        }
+        .error-message {
+            color: #ff4d4f;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+    </style>
+</head>
+<body>
+    
+    <div class="crypto-header">
+        <i class="fas fa-arrow-left back-arrow" onclick="window.history.back()"></i>
+        <h2>Rút</h2>
+    </div>
+
+    <div class="crypto-content">
+        
+        <div class="limit-box">
+            <i class="fas fa-info-circle info-icon" onclick="alert('Giới hạn rút tối đa 5 lần mỗi 10 phút.')"></i>
+            
+            <p style="color: #b0c2d4; font-weight: 500;">Số dư khả dụng</p>
+            <span id="available-balance-display" class="error-text">Đang tải...</span>
+            
+            <p>Vòng cược chưa hoàn thành <span id="wagering-display">0.009 USDT</span></p>
+            <p>Hạn mức <span>10-1,000,000 USDT</span></p>
+            <p>Số lần còn dư có thể rút tiền(UTC+0): <span>5</span></p>
+        </div>
+
+        <div class="form-group">
+            <label>Địa chỉ rút tiền (TRC20)</label>
+            <div class="form-control-input" onclick="alert('Mở trang quản lý địa chỉ ví')">
+                <span>Vui lòng thêm địa chỉ rút</span>
+                <i class="fas fa-chevron-right" style="color:#FFD700;"></i>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="withdraw-amount">Số tiền rút</label>
+            <div class="amount-input-group">
+                <input type="number" id="withdraw-amount" placeholder="Nhập số tiền rút">
+                <button class="max-btn" id="max-withdraw-btn">Tất cả</button>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="fund-password">Mật khẩu quỹ</label>
+            <input type="password" id="fund-password" placeholder="Nhập mật khẩu quỹ">
+        </div>
+
+        <div class="fee-details">
+            <p>Phí thủ tục: <span id="fee-amount">0.500 USDT</span></p>
+            <p>Số tiền nhận được: <span id="receive-amount">0.000 USDT</span></p>
+        </div>
+        
+        <p id="error-message" class="error-message"></p>
+        <button id="withdraw-confirm-btn" onclick="processCryptoWithdrawal()">Rút</button>
+
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchCryptoWithdrawData);
+        const API_BASE_URL = 'http://localhost:3000/api';
+        const FIXED_FEE = 0.50; // Phí cố định 0.5 USDT
+        let availableBalance = 0;
+
+        async function fetchCryptoWithdrawData() {
+            const token = localStorage.getItem('authToken');
+            
+            if (!token) {
+                 window.location.href = 'login.html';
+                 return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/user/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const userData = await response.json();
+                
+                const balanceDisplay = document.getElementById('available-balance-display');
+                
+                if (response.ok) {
+                    availableBalance = userData.balance || 0;
+                    balanceDisplay.textContent = availableBalance.toFixed(3) + ' USDT';
+                    balanceDisplay.classList.remove('error-text');
+                    balanceDisplay.style.color = '#FFD700'; // Đặt lại màu vàng
+                    
+                    document.getElementById('wagering-display').textContent = '0.009 USDT'; 
+
+                } else {
+                    if (response.status === 401 || response.status === 403) {
+                         alert('Phiên hết hạn. Vui lòng đăng nhập lại.');
+                         localStorage.removeItem('authToken');
+                         window.location.href = 'login.html';
+                         return;
+                    }
+                    // Hiển thị LỖI TẢI DỮ LIỆU
+                    balanceDisplay.textContent = 'LỖI TẢI DỮ LIỆU';
+                    balanceDisplay.classList.add('error-text');
+                    console.error('Server returned non-OK status or 404');
+                    return;
+                }
+            } catch (e) {
+                // Lỗi kết nối
+                document.getElementById('available-balance-display').textContent = 'LỖI KẾT NỐI';
+                document.getElementById('available-balance-display').classList.add('error-text');
+                console.error('Lỗi khi tải dữ liệu rút tiền:', e);
+            }
+        }
+        
+        // Cập nhật số tiền nhận được khi nhập liệu
+        document.getElementById('withdraw-amount').addEventListener('input', updateReceiveAmount);
+        
+        // Logic nút TẤT CẢ
+        document.getElementById('max-withdraw-btn').addEventListener('click', () => {
+             const maxAmount = Math.max(0, availableBalance - FIXED_FEE);
+             document.getElementById('withdraw-amount').value = maxAmount.toFixed(3);
+             updateReceiveAmount();
+        });
+
+        function updateReceiveAmount() {
+            const amountInput = parseFloat(document.getElementById('withdraw-amount').value) || 0;
+            const receiveElement = document.getElementById('receive-amount');
+            
+            if (amountInput > FIXED_FEE) {
+                const received = amountInput - FIXED_FEE;
+                receiveElement.textContent = received.toFixed(3) + ' USDT';
+            } else {
+                receiveElement.textContent = '0.000 USDT';
+            }
+        }
+        
+        async function processCryptoWithdrawal() {
+            const amount = parseFloat(document.getElementById('withdraw-amount').value) || 0;
+            const fundPassword = document.getElementById('fund-password').value;
+            const token = localStorage.getItem('authToken');
+            const errorElement = document.getElementById('error-message');
+            errorElement.textContent = '';
+            
+            if (amount < 10) { errorElement.textContent = 'Rút tối thiểu 10 USDT.'; return; }
+            if (amount > availableBalance) { errorElement.textContent = 'Số dư không đủ.'; return; }
+            if (!fundPassword) { errorElement.textContent = 'Vui lòng nhập mật khẩu quỹ.'; return; }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/wallet/withdraw`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ amount, fundPassword })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(`Yêu cầu rút ${amount} USDT đã được gửi! Số dư mới: ${data.newBalance.toFixed(2)}`);
+                    window.history.back(); 
+                } else if (response.status === 403 || response.status === 400) {
+                    errorElement.textContent = data.message;
+                } else {
+                    errorElement.textContent = 'Lỗi server không xác định.';
+                }
+            } catch (error) {
+                errorElement.textContent = 'Lỗi kết nối server.';
+            }
+        }
+    </script>
+</body>
+</html>

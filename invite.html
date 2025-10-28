@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mời | CoinVid</title>
+    <link rel="stylesheet" href="styles.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+    <style>
+        /* Base styles */
+        body { 
+            background-color: #0d1117; 
+            padding-bottom: 0; 
+            color: #e6edf3;
+            font-family: sans-serif;
+        }
+
+        /* Header (ĐÃ CĂN GIỮA) */
+        .page-header { 
+            display: flex; 
+            align-items: center; 
+            padding: 15px; 
+            background-color: #161b22; 
+            border-bottom: 1px solid #2d3840;
+        }
+        .page-header .back-arrow { 
+            color: #e6edf3; 
+            font-size: 1.5rem; 
+            cursor: pointer; 
+            margin-right: 15px; 
+        }
+        /* Căn giữa tuyệt đối cho h2 */
+        .page-header h2 { 
+            margin: 0 auto; 
+            font-size: 18px; 
+            color: #e6edf3; 
+            font-weight: 600; 
+            /* Bù trừ cho khoảng trống bị chiếm bởi nút back */
+            margin-left: calc(50% - 18px); 
+            transform: translateX(-50%);
+        }
+
+        /* **************************************************** */
+        /* INVITE CARD & PROGRESS */
+        /* **************************************************** */
+        .banner-card {
+            margin: 15px;
+            padding: 20px 15px;
+            background: linear-gradient(135deg, #4b3d73 0%, #161b22 100%); /* Gradient tím/đen */
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            height: 140px; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+        .level-info {
+            position: relative;
+            z-index: 10;
+        }
+        .level-info .lv {
+            font-size: 24px;
+            font-weight: bold;
+            color: #90ee90;
+            margin-right: 10px;
+        }
+        .level-info .progress-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            margin-top: 5px;
+        }
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            margin-top: 5px;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%; /* Cần update bằng JS */
+            background-color: #90ee90;
+            border-radius: 3px;
+            transition: width 0.5s;
+        }
+        .target-text {
+            position: absolute;
+            top: 20px;
+            right: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #FFD700;
+            z-index: 10;
+        }
+        /* Icon kim cương lớn */
+        .large-diamond-icon {
+            position: absolute;
+            right: 0;
+            top: -20px;
+            font-size: 140px;
+            color: rgba(142, 68, 173, 0.3);
+            transform: rotate(10deg);
+        }
+
+        /* **************************************************** */
+        /* STATS GRID */
+        /* **************************************************** */
+		.stats-grid {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 10px;
+			padding: 0 15px;
+			margin-top: 15px;
+		}
+		.stat-box {
+			background-color: #1e1e1e;
+			padding: 15px;
+			border-radius: 8px;
+			color: #e6edf3;
+			position: relative;
+			min-height: 80px;
+			text-align: left;
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+            transition: background-color 0.2s; 
+            cursor: pointer;
+		}
+        .stat-box:hover {
+            background-color: #2a2a2a; 
+        }
+		.stat-title { font-size: 13px; color: #b0c2d4; margin-bottom: 5px; }
+		.stat-value { font-size: 18px; font-weight: bold; }
+        /* Icons */
+		.stat-icon { position: absolute; right: 10px; top: 10px; font-size: 24px; }
+        /* Colors for Stats Icons */
+        .icon-coin { color: #FFD700; } 
+        .icon-red-diamond { color: #DC143C; } 
+        .icon-gold-diamond { color: #FFC300; } 
+        .icon-silver-diamond { color: #A9A9A9; }
+		.stat-icon img { display:none; } 
+
+        /* **************************************************** */
+        /* MENU LISTS (LINK/CODE & DETAILS) */
+        /* **************************************************** */
+		.menu-group {
+			margin: 15px;
+			background-color: #161b22;
+			border-radius: 8px;
+		}
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #2d3840;
+            cursor: pointer;
+        }
+        .menu-item:last-child { border-bottom: none; }
+
+        /* Item đặc biệt cho Liên kết/Mã mời */
+        .link-code-item {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 15px;
+        }
+        .link-row, .code-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            align-items: center; 
+            margin-bottom: 5px;
+        }
+        .link-row:last-child, .code-row:last-child { margin-bottom: 0; }
+        .link-label, .code-label { font-size: 14px; color: #b0c2d4; }
+        
+        /* Đảm bảo link và mã hiển thị đủ rõ */
+        .link-value { 
+            font-size: 14px; 
+            color: #90ee90; 
+            display: flex; 
+            align-items: center;
+            max-width: 75%; /* Giới hạn chiều rộng để không tràn ra ngoài */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .code-value {
+             font-size: 14px; 
+             color: #90ee90; 
+             display: flex; 
+             align-items: center;
+        }
+
+        /* Thay icon bút bằng icon copy */
+        .link-value i, .code-value i { 
+            margin-left: 8px; 
+            color: #b0c2d4; 
+            cursor: pointer; 
+            font-size: 1.1em; /* Tăng kích thước icon copy */
+        }
+        .link-value span { color: #e6edf3; }
+
+        .detail-menu-icon { font-size: 1.2rem; margin-right: 15px; width: 25px; text-align: center; }
+        .detail-menu-title { flex-grow: 1; font-size: 15px; font-weight: 500; }
+        .detail-menu-arrow { color: #b0c2d4; font-size: 1rem; }
+
+        /* COLORS for Detail Menu */
+        .icon-yellow { color: #f0ad4e; }
+        .icon-blue-dark { color: #34495e; }
+        .icon-red { color: #dc143c; }
+        .icon-orange { color: #ff8c00; }
+        .icon-light-blue { color: #00bcd4; }
+        .icon-purple { color: #8e44ad; }
+        .icon-sea { color: #1abc9c; }
+        
+        /* **************************************************** */
+        /* MODAL STYLES */
+        /* **************************************************** */
+        .general-modal {
+            display: none; 
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+        .general-modal-content {
+            background-color: #1e2126; 
+            margin: 15% auto; 
+            padding: 20px;
+            border: 1px solid #333;
+            width: 80%;
+            max-width: 350px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            color: #e6edf3;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #FFD700; 
+        }
+        .close-btn {
+            color: #b0c2d4;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .close-btn:hover,
+        .close-btn:focus {
+            color: white;
+            text-decoration: none;
+        }
+        .modal-body {
+            text-align: center;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #b0c2d4;
+            margin-bottom: 20px;
+        }
+        .confirm-btn {
+            background-color: #FFD700; 
+            color: #161b22;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+            font-size: 16px;
+        }
+        .confirm-btn:hover {
+            background-color: #e0b400;
+        }
+        .text-center p { margin: 5px 0; }
+    </style>
+</head>
+<body>
+    
+    <div class="page-header">
+        <i class="fas fa-arrow-left back-arrow" onclick="window.history.back()"></i>
+        <h2>Mời</h2>
+    </div>
+
+    <div class="main-content">
+        
+        <div class="banner-card">
+            <i class="fas fa-diamond large-diamond-icon"></i>
+            <div class="level-info">
+                <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                    <span id="currentLevel" class="lv">LV1</span> 
+                    <i class="fas fa-check-circle" style="color: #90ee90; font-size: 12px;"></i>
+                </div>
+                <span id="nextTarget" class="target-text">LV2 Mục tiêu: 10</span>
+                
+                <div id="progressValue" class="progress-value">0</div>
+                
+                <div class="progress-bar-container">
+                    <div id="progressBarFill" class="progress-fill" style="width: 0%;"></div>
+                </div>
+                <div style="font-size: 10px; color: #b0c2d4; margin-top: 3px;">Tiến độ thăng cấp</div>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-box" onclick="showGeneralInfo()">
+                <span class="stat-title">Tổng hoàn trả <i class="fas fa-question-circle" style="font-size: 10px; color: #b0c2d4;"></i></span>
+                <div class="stat-value" id="totalRebate">0.000</div>
+                <i class="fas fa-coins stat-icon icon-coin"></i>
+            </div>
+            <div class="stat-box" onclick="showLevelDetail()">
+                <span class="stat-title">Cấp dưới cấp 1 <i class="fas fa-question-circle" style="font-size: 10px; color: #b0c2d4;"></i></span>
+                <div class="stat-value" id="subLevel1">0 / 0</div>
+                <i class="fas fa-gem stat-icon icon-red-diamond"></i>
+            </div>
+            <div class="stat-box" onclick="showLevelDetail()">
+                <span class="stat-title">Cấp dưới cấp 2</span>
+                <div class="stat-value" id="subLevel2">0</div>
+                <i class="fas fa-gem stat-icon icon-gold-diamond"></i>
+            </div>
+            <div class="stat-box" onclick="showLevelDetail()">
+                <span class="stat-title">Cấp dưới cấp 3</span>
+                <div class="stat-value" id="subLevel3">0</div>
+                <i class="fas fa-gem stat-icon icon-silver-diamond"></i>
+            </div>
+        </div>
+        
+        <div class="menu-group" style="margin-top: 15px;">
+             <div class="link-code-item" style="border-bottom: 1px solid #2d3840;">
+                <div class="link-row">
+                    <span class="link-label">Liên kết lời mời</span>
+                    <span id="inviteLink" class="link-value" style="color: #90ee90;">Đang tải...</span>
+                    <i class="fas fa-copy" onclick="copyToClipboard('inviteLink')"></i>
+                </div>
+            </div>
+            <div class="link-code-item">
+                <div class="code-row">
+                    <span class="code-label">Mã mời</span>
+                    <span id="inviteCode" class="code-value" style="color: #90ee90;">...</span>
+                    <i class="fas fa-copy" onclick="copyToClipboard('inviteCode')"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="menu-group">
+            <div class="menu-item" onclick="alert('Mở Hướng dẫn lời mời')">
+                <span class="detail-menu-icon icon-yellow"><i class="fas fa-book-open"></i></span>
+                <span class="detail-menu-title">Hướng dẫn lời mời</span>
+                <i class="fas fa-chevron-right detail-menu-arrow"></i>
+            </div>
+            <div class="menu-item" onclick="alert('Mở Nhóm của tôi')">
+                <span class="detail-menu-icon icon-blue-dark"><i class="fas fa-users"></i></span>
+                <span class="detail-menu-title">Nhóm của tôi</span>
+                <i class="fas fa-chevron-right detail-menu-arrow"></i>
+            </div>
+            <div class="menu-item" onclick="alert('Mở Báo cáo nhóm')">
+                <span class="detail-menu-icon icon-red"><i class="fas fa-bell"></i></span>
+                <span class="detail-menu-title">Báo cáo nhóm</span>
+                <i class="fas fa-chevron-right detail-menu-arrow"></i>
+            </div>
+            <div class="menu-item" onclick="alert('Mở Chi tiết giao dịch')">
+                <span class="detail-menu-icon icon-orange"><i class="fas fa-receipt"></i></span>
+                <span class="detail-menu-title">Chi tiết giao dịch</span>
+                <i class="fas fa-chevron-right detail-menu-arrow"></i>
+            </div>
+        </div>
+        
+        <div class="menu-group">
+            <div class="menu-item" onclick="alert('Mở Lịch sử trò chơi')">
+                <span class="detail-menu-icon icon-light-blue"><i class="fas fa-gamepad"></i></span>
+                <span class="detail-menu-title">Lịch sử trò chơi</span>
+                <i class="fas fa-chevron-right detail-menu-arrow"></i>
+            </div>
+            <div class="menu-item" onclick="alert('Mở Lịch sử tùy chọn')">
+                <span class="detail-menu-icon icon-sea"><i class="fas fa-chart-line"></i></span>
+                <span class="detail-menu-title">Lịch sử tùy chọn</span>
+                <i class="fas fa-chevron-right detail-menu-arrow"></i>
+            </div>
+            <div class="menu-item" onclick="alert('Mở Lịch sử Seconds contract')">
+                <span class="detail-menu-icon icon-orange"><i class="fas fa-hourglass-half"></i></span>
+                <span class="detail-menu-title">Lịch sử Seconds contract</span>
+                <i class="fas fa-chevron-right detail-menu-arrow"></i>
+            </div>
+            <div class="menu-item" onclick="alert('Mở Lịch sử sòng bài-Ezugi')">
+                <span class="detail-menu-icon icon-purple"><i class="fas fa-dice"></i></span>
+                <span class="detail-menu-title">Lịch sử sòng bài-Ezugi</span>
+                <i class="fas fa-chevron-right detail-menu-arrow"></i>
+            </div>
+            <div class="menu-item" onclick="alert('Mở Lịch sử thể thao-Ponyuah')">
+                <span class="detail-menu-icon icon-light-blue"><i class="fas fa-football-ball"></i></span>
+                <span class="detail-menu-title">Lịch sử thể thao-Ponyuah</span>
+                <i class="fas fa-chevron-right detail-menu-arrow"></i>
+            </div>
+        </div>
+
+    </div>
+    
+    <div id="generalInfoModal" class="general-modal">
+        <div class="general-modal-content">
+            <div class="modal-header">
+                <h3>Xin lưu ý</h3>
+                <span class="close-btn" onclick="hideModal('generalInfoModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="general-modal-message">Mỗi tiếng sẽ hoàn trả 1 lần, xin vui lòng đợi</p>
+            </div>
+            <button onclick="hideModal('generalInfoModal')" class="confirm-btn">Chắc chắn rồi</button>
+        </div>
+    </div>
+
+
+    <div id="levelDetailModal" class="general-modal">
+        <div class="general-modal-content">
+            <div class="modal-header">
+                <h3>Xin lưu ý</h3>
+                <span class="close-btn" onclick="hideModal('levelDetailModal')">&times;</span>
+            </div>
+            <div class="modal-body text-center">
+                <p id="total-people">tổng số người: 0</p>
+                <p id="total-deposit">Đã nạp: 0</p>
+                <p class="mt-4" style="color:#e6edf3;">Việc nâng cấp nhóm tùy thuộc vào số lượng cấp dưới nạp tiền thành công</p>
+            </div>
+            <button onclick="hideModal('levelDetailModal')" class="confirm-btn">Chắc chắn rồi</button>
+        </div>
+    </div>
+    
+    <script>
+		// --- ĐÃ CẬP NHẬT TÊN MIỀN CỐ ĐỊNH CỦA BẠN ---
+		const API_BASE_URL = 'http://localhost:3000/api'; 
+		const baseDomain = "https://thanhdz.pages.dev/register?code="; // Domain mới của bạn
+		const INVITE_CODE_KEY = 'fixedInviteCode'; 
+
+		// --- HÀM TẠO MÃ MỜI NGẪU NHIÊN 6 KÝ TỰ (CHỮ VÀ SỐ) ---
+		function generateRandomCode(length = 6) {
+			const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+			let result = '';
+			for (let i = 0; i < length; i++) {
+				result += characters.charAt(Math.floor(Math.random() * characters.length));
+			}
+			return result;
+		}
+		
+		// --- LOGIC MODAL CONTROL ---
+		function showModal(modalId) {
+			document.getElementById(modalId).style.display = 'flex';
+		}
+
+		function hideModal(modalId) {
+			document.getElementById(modalId).style.display = 'none';
+		}
+
+		function showGeneralInfo() {
+			document.querySelector('#generalInfoModal .modal-header h3').textContent = "Xin lưu ý";
+			document.getElementById('general-modal-message').textContent = "Mỗi tiếng sẽ hoàn trả 1 lần, xin vui lòng đợi";
+			showModal('generalInfoModal');
+		}
+
+		function showLevelDetail() {
+			const subLevel1Text = document.getElementById('subLevel1').textContent;
+			const totalPeople = subLevel1Text.split('/')[1] || 0; 
+			const totalDeposit = document.getElementById('totalRebate').textContent; 
+
+			document.getElementById('total-people').textContent = `tổng số người: ${totalPeople}`;
+			document.getElementById('total-deposit').textContent = `Đã nạp: ${totalDeposit}`;
+			
+			showModal('levelDetailModal');
+		}
+		
+		// --- LOGIC COPY ---
+		function copyToClipboard(elementId) {
+			const element = document.getElementById(elementId);
+			const textToCopy = element.getAttribute('data-full-link');
+			
+			if (!textToCopy || textToCopy === 'DN_REQ') {
+				 alert('Vui lòng đăng nhập để xem và sao chép mã mời.');
+				 return;
+			}
+
+			navigator.clipboard.writeText(textToCopy).then(() => {
+				const isLink = elementId === 'inviteLink';
+				const displayText = isLink ? 'Link lời mời' : 'Mã mời';
+				alert(`Đã sao chép ${displayText}: ${textToCopy}`);
+			}).catch(err => {
+				console.error('Không thể sao chép: ', err);
+				alert('Lỗi: Không thể sao chép. Vui lòng kiểm tra quyền truy cập clipboard.');
+			});
+		}
+		
+		// --- LOGIC FETCH DATA ---
+		async function fetchInviteData() {
+			const token = localStorage.getItem('authToken');
+			
+			// --- 1. LẤY HOẶC TẠO MÃ CỐ ĐỊNH ---
+			let code = localStorage.getItem(INVITE_CODE_KEY);
+			if (!code) {
+				 // Chỉ tạo mã mới 1 lần duy nhất trong trình duyệt
+				 code = generateRandomCode(); 
+				 localStorage.setItem(INVITE_CODE_KEY, code);
+			}
+
+			// MOCK DATA (Dữ liệu giả, sử dụng mã cố định)
+			const mockData = {
+				level: 1, nextTargetCount: 10, currentProgressCount: 0, 
+				totalRebate: 0.000, subLevel1Active: 0, subLevel1Total: 0, subLevel2Total: 0, subLevel3Total: 0, 
+				inviteCode: code // <-- Dùng mã cố định
+			};
+			
+			let data = mockData;
+			
+			if (!token) {
+				data = { ...mockData, inviteCode: 'DN_REQ', currentProgressCount: 0, subLevel1Total: 0 };
+				document.getElementById('inviteCode').textContent = 'DN_REQ';
+				document.getElementById('inviteLink').textContent = 'Vui lòng đăng nhập';
+			} 
+			
+			// --- 2. CẬP NHẬT GIAO DIỆN ---
+			const currentLevel = data.level || 1;
+			const nextTargetCount = data.nextTargetCount || 10;
+			const currentProgressCount = data.currentProgressCount || 0;
+			const progressPercent = (currentProgressCount / nextTargetCount) * 100;
+			
+			document.getElementById('currentLevel').textContent = `LV${currentLevel}`;
+			document.getElementById('progressValue').textContent = currentProgressCount;
+			document.getElementById('nextTarget').textContent = `LV${currentLevel + 1} Mục tiêu: ${nextTargetCount}`;
+			document.getElementById('progressBarFill').style.width = `${Math.min(100, progressPercent)}%`;
+			
+			document.getElementById('totalRebate').textContent = (data.totalRebate || 0).toFixed(3);
+			document.getElementById('subLevel1').textContent = `${data.subLevel1Active || 0} / ${data.subLevel1Total || 0}`;
+			document.getElementById('subLevel2').textContent = data.subLevel2Total || 0;
+			document.getElementById('subLevel3').textContent = data.subLevel3Total || 0;
+
+			// --- 3. CẬP NHẬT LINK VÀ MÃ MỜI CUỐI CÙNG ---
+			const inviteCode = data.inviteCode || 'CODE_ERROR'; 
+			const fullLink = baseDomain + inviteCode;
+			
+			document.getElementById('inviteCode').textContent = inviteCode;
+			document.getElementById('inviteCode').setAttribute('data-full-link', inviteCode); 
+
+			if (token) {
+				document.getElementById('inviteLink').textContent = fullLink; 
+				document.getElementById('inviteLink').setAttribute('data-full-link', fullLink); 
+			}
+		}
+		
+		document.addEventListener('DOMContentLoaded', () => {
+			 window.copyToClipboard = copyToClipboard;
+			 window.showGeneralInfo = showGeneralInfo;
+			 window.showLevelDetail = showLevelDetail;
+			 window.hideModal = hideModal;
+			 
+			 fetchInviteData();
+		});
+	</script>
+</body>
+</html>

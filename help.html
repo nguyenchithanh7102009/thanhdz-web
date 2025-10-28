@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trợ giúp | CoinVid</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+    <style>
+        body { background-color: #0d1117; padding-bottom: 0; }
+        .page-header { display: flex; align-items: center; padding: 15px; background-color: #161b22; border-bottom: 1px solid #2d3840; }
+        .page-header .back-arrow { color: #e6edf3; font-size: 1.5rem; margin-right: 20px; cursor: pointer; }
+        .page-header h2 { margin: 0; font-size: 18px; color: #e6edf3; font-weight: 600; }
+
+        .help-menu {
+             background-color: #1a1a1a;
+             border-radius: 8px;
+             margin: 15px;
+             padding: 10px;
+        }
+        .help-menu div {
+            padding: 12px 0;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        .help-menu div:last-child { border-bottom: none; }
+        .menu-item-title { color: #e6edf3; font-size: 15px; }
+        .menu-item-arrow { color: #FFD700; }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <i class="fas fa-arrow-left back-arrow" onclick="window.history.back()"></i>
+        <h2>Trợ giúp</h2>
+    </div>
+    <div class="main-content">
+        <div class="help-menu">
+            <div onclick="alert('Mở phí giao dịch')">
+                <span class="menu-item-title">Phí giao dịch</span>
+                <i class="fas fa-chevron-right menu-item-arrow"></i>
+            </div>
+            <div onclick="alert('Mở giới thiệu USDT')">
+                <span class="menu-item-title">Giới thiệu USDT</span>
+                <i class="fas fa-chevron-right menu-item-arrow"></i>
+            </div>
+            <div onclick="alert('Mở hướng dẫn giao dịch')">
+                <span class="menu-item-title">Hướng dẫn Giao dịch (TRX Xanh đỏ)</span>
+                <i class="fas fa-chevron-right menu-item-arrow"></i>
+            </div>
+            <div onclick="alert('Mở thỏa thuận điều khoản')">
+                <span class="menu-item-title">Thỏa thuận điều khoản</span>
+                <i class="fas fa-chevron-right menu-item-arrow"></i>
+            </div>
+             <div onclick="alert('Mở chính sách bảo mật')">
+                <span class="menu-item-title">Chính sách Bảo mật</span>
+                <i class="fas fa-chevron-right menu-item-arrow"></i>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sửa SĐT | CoinVid</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+    <style>
+        .form-container { padding: 20px; max-width: 400px; margin: 50px auto; background-color: #1a1a1a; border-radius: 8px; }
+        .form-container h2 { color: #FFD700; text-align: center; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; color: #b0c2d4; margin-bottom: 5px; font-size: 14px; }
+        .phone-input-group { display: flex; gap: 10px; }
+        .form-group input, .country-code-select {
+             width: 100%; padding: 12px; background-color: #0d1117; border: 1px solid #3d495a; border-radius: 6px; color: #e6edf3; font-size: 16px; box-sizing: border-box; 
+        }
+        .country-code-select { width: 120px; flex-shrink: 0; }
+        #submit-btn { background: linear-gradient(90deg, #FFD700, #FFA500); color: #161b22; padding: 15px; border: none; border-radius: 8px; width: 100%; font-weight: bold; margin-top: 30px; cursor: pointer; }
+        .error-message { color: #ff4d4f; text-align: center; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Thay đổi Số điện thoại</h2>
+        <div class="form-group">
+            <label for="old-phone">Số điện thoại hiện tại</label>
+            <input type="text" id="old-phone" readonly value="Đang tải...">
+        </div>
+        
+        <div class="form-group">
+            <label for="new-phone">Số điện thoại mới</label>
+            <div class="phone-input-group">
+                <select id="country-code" class="country-code-select">
+                    <option value="+84" selected>🇻🇳 +84</option>
+                    <option value="+1">🇺🇸 +1</option>
+                    <option value="+65">🇸🇬 +65</option>
+                </select>
+                <input type="tel" id="new-phone" placeholder="Nhập số điện thoại mới">
+            </div>
+        </div>
+        
+        <p id="error-message" class="error-message"></p>
+        <button id="submit-btn" onclick="changePhone()">Xác nhận thay đổi</button>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchCurrentPhone);
+        const API_BASE_URL = 'http://localhost:3000/api';
+
+        async function fetchCurrentPhone() {
+            const token = localStorage.getItem('authToken');
+            if (!token) return window.location.href = 'login.html';
+
+            const response = await fetch(`${API_BASE_URL}/user/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const userData = await response.json();
+            if (response.ok) {
+                document.getElementById('old-phone').value = userData.phone || 'Chưa đặt';
+            }
+        }
+        
+        async function changePhone() {
+            const countryCode = document.getElementById('country-code').value;
+            const newPhoneInput = document.getElementById('new-phone').value;
+            const newPhone = countryCode + newPhoneInput;
+            const token = localStorage.getItem('authToken');
+            const errorElement = document.getElementById('error-message');
+            errorElement.textContent = '';
+
+            if (newPhone.length < 10) {
+                errorElement.textContent = 'Số điện thoại không hợp lệ.';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/settings/change-phone`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ newPhone })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Thay đổi số điện thoại thành công!');
+                    window.location.href = 'personal_center.html';
+                } else {
+                    errorElement.textContent = data.message || 'Lỗi thay đổi SĐT.';
+                }
+            } catch (error) {
+                errorElement.textContent = 'Lỗi kết nối server.';
+            }
+        }
+    </script>
+</body>
+</html>

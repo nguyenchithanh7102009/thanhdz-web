@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết Nạp tiền</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+    <style>
+        /* CSS Riêng cho trang Nạp Fiat */
+        
+        body {
+            background-color: #0d1117; 
+            padding-bottom: 20px;
+        }
+
+        .fiat-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #161b22;
+            border-bottom: 1px solid #2d3840;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .fiat-header .back-arrow {
+            color: #e6edf3;
+            font-size: 1.5rem;
+            margin-right: 20px;
+            cursor: pointer;
+        }
+        .fiat-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #e6edf3;
+            font-weight: 600;
+            flex-grow: 1;
+            text-align: center;
+            transform: translateX(-15px);
+        }
+        
+        .fiat-content {
+            padding: 15px;
+        }
+
+        /* Form và Input Style */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+            display: block;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            background-color: #1a1a1a;
+            border: 1px solid #3d495a;
+            border-radius: 8px;
+            color: #e6edf3;
+            font-size: 16px;
+            box-sizing: border-box;
+            margin-top: 5px;
+        }
+
+        /* Hạn mức và Đơn giá */
+        .limit-display, .rate-display {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 14px;
+            color: #b0c2d4;
+        }
+        .rate-display span:last-child {
+            color: #FFD700;
+            font-weight: bold;
+        }
+        
+        /* Chú thích Tỷ giá */
+        .note {
+            font-size: 12px;
+            color: #ff8c00;
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        /* Nút Nạp */
+        #deposit-confirm-btn {
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            color: #161b22;
+            padding: 18px;
+            border: none;
+            border-radius: 8px;
+            width: 100%;
+            font-weight: 900;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="fiat-header">
+        <i class="fas fa-arrow-left back-arrow" onclick="window.history.back()"></i>
+        <h2 id="channel-title">Nạp</h2>
+    </div>
+
+    <div class="fiat-content">
+        
+        <div class="form-group">
+            <label>Kênh nạp tiền</label>
+            <input type="text" id="channel-name-display" value="V8pay" readonly>
+            <div class="limit-display">
+                <span>Hạn mức:</span>
+                <span id="limit-range">50,000 - 3,000,000,000 VND</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="deposit-amount">Số tiền nạp (VND)</label>
+            <input type="number" id="deposit-amount" placeholder="Nhập số tiền bạn muốn nạp">
+        </div>
+        
+        <div class="rate-display">
+            <span>Đơn giá:</span>
+            <span id="exchange-rate">27094.14 VND / USDT</span>
+        </div>
+        <div class="rate-display" style="margin-bottom: 20px;">
+            <span>Số lượng vào tài khoản (USDT):</span>
+            <span id="usdt-amount">0.00</span>
+        </div>
+        
+        <div class="note">
+            Tỷ giá có thể thay đổi, dựa trên số tiền thực tế
+        </div>
+        
+        <button id="deposit-confirm-btn" onclick="processDeposit()">Nạp</button>
+
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', initializeFiatPage);
+        
+        // Tỷ giá hối đoái giả lập (VND trên 1 USDT)
+        const EXCHANGE_RATE = 27094.14; 
+        
+        // **********************************************
+        // DỮ LIỆU CÁC TÀI KHOẢN NẠP TIỀN CỐ ĐỊNH VÀ XOAY VÒNG
+        // **********************************************
+        const DEPOSIT_CHANNELS = {
+            // MBBank là kênh xoay vòng chính
+            'V8pay - QR Bank': {
+                 bank: 'MBBank',
+                 accounts: ["823299999", "5695888888", "6404567899", "327399999", "809123456"],
+                 accountName: 'NGUYEN CHI THANH'
+            },
+            // Momo và ViettelPay không xoay vòng
+            'V8pay - Momo': { 
+                bank: 'Momo', 
+                accounts: ["0813326267"],
+                accountName: 'NGUYEN CHI THANH'
+            },
+            'ViettelPay': { 
+                bank: 'ViettelPay', 
+                accounts: ["0397333425"],
+                accountName: 'CHU THI TRANH' // Tên chủ tài khoản riêng
+            }
+        };
+        
+        // HÀM CHỌN TÀI KHOẢN THEO CƠ CHẾ XOAY VÒNG (ROUND-ROBIN)
+        function getNextAccount(channelKey) {
+            const channelInfo = DEPOSIT_CHANNELS[channelKey];
+            if (!channelInfo || channelInfo.accounts.length === 0) return null;
+            
+            let lastIndex = parseInt(localStorage.getItem(`lastIndex_${channelKey}`)) || 0;
+            
+            // Lấy tài khoản và tên chủ tài khoản
+            const nextAccount = channelInfo.accounts[lastIndex];
+            const accountHolder = channelInfo.accountName;
+
+            // Xoay vòng index
+            lastIndex = (lastIndex + 1) % channelInfo.accounts.length;
+            
+            // Lưu index mới
+            localStorage.setItem(`lastIndex_${channelKey}`, lastIndex);
+            
+            return { account: nextAccount, bank: channelInfo.bank, name: accountHolder };
+        }
+
+
+        function initializeFiatPage() {
+            // Lấy thông tin từ URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const channel = urlParams.get('channel') || 'N/A';
+            const minLimit = urlParams.get('min') || 0;
+            const maxLimit = urlParams.get('max') || 0;
+
+            // Cập nhật giao diện
+            document.getElementById('channel-title').textContent = `Nạp qua ${channel}`;
+            document.getElementById('channel-name-display').value = channel;
+            document.getElementById('limit-range').textContent = `${parseInt(minLimit).toLocaleString()} - ${parseInt(maxLimit).toLocaleString()} VND`;
+            
+            // Lắng nghe sự kiện nhập liệu
+            document.getElementById('deposit-amount').addEventListener('input', calculateUSDT);
+        }
+
+        function calculateUSDT() {
+            const amountInput = document.getElementById('deposit-amount');
+            const amount = parseFloat(amountInput.value) || 0;
+            const usdtElement = document.getElementById('usdt-amount');
+            
+            if (amount > 0) {
+                const usdtValue = amount / EXCHANGE_RATE;
+                usdtElement.textContent = usdtValue.toFixed(2);
+            } else {
+                usdtElement.textContent = '0.00';
+            }
+        }
+        
+        function processDeposit() {
+            const amountInput = document.getElementById('deposit-amount');
+            const amount = parseFloat(amountInput.value) || 0;
+            const minLimit = 50000; 
+            const channelName = document.getElementById('channel-name-display').value;
+
+            if (amount < minLimit) {
+                alert(`Vui lòng nạp tối thiểu ${minLimit.toLocaleString()} VND.`);
+                return;
+            }
+            
+            // *** XỬ LÝ CHỌN TÀI KHOẢN ĐỘNG ***
+            let channelKey;
+            if (channelName.includes('QR Bank')) { channelKey = 'V8pay - QR Bank'; } 
+            else if (channelName.includes('Momo')) { channelKey = 'V8pay - Momo'; }
+            else if (channelName.includes('ViettelPay')) { channelKey = 'ViettelPay'; }
+            
+            const selectedAccount = getNextAccount(channelKey);
+
+            if (!selectedAccount) {
+                 alert('Lỗi hệ thống: Không tìm thấy tài khoản nhận tiền.');
+                 return;
+            }
+
+            // Tạo Mã tham chiếu giả lập
+            const transferCode = Math.random().toString(36).substring(2, 8).toUpperCase(); 
+            const finalAmount = amount.toFixed(0);
+
+            // Chuyển hướng đến trang thanh toán QR
+            window.location.href = `fiat_payment_qrcode.html?amount=${finalAmount}&code=${transferCode}&channel=${encodeURIComponent(channelName)}&account=${selectedAccount.account}&bank=${selectedAccount.bank}&name=${selectedAccount.name}`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đang xét duyệt | CoinVid Clone</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+    <style>
+        /* CSS Riêng cho trang KYC Review */
+        
+        body {
+            background-color: #0d1117; 
+            padding-bottom: 20px;
+        }
+
+        .kyc-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #161b22;
+            border-bottom: 1px solid #2d3840;
+        }
+        .kyc-header .back-arrow {
+            color: #e6edf3;
+            font-size: 1.5rem;
+            margin-right: 20px;
+            cursor: pointer;
+        }
+        .kyc-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #e6edf3;
+            font-weight: 600;
+            flex-grow: 1;
+            text-align: center;
+            transform: translateX(-15px);
+        }
+
+        /* Thanh Tiến trình (Progress Steps) - Đánh dấu Bước 3 Active */
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 30px;
+            background-color: #0d1117;
+        }
+        .step {
+            text-align: center;
+            position: relative;
+            color: #555;
+            font-size: 14px;
+        }
+        .step-number {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background-color: #3d495a;
+            color: #e6edf3;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            margin-bottom: 5px;
+            z-index: 2;
+            position: relative;
+        }
+        .step-title {
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .step-line {
+            position: absolute;
+            height: 2px;
+            background-color: #3d495a;
+            top: 32px;
+            width: 100%;
+            transform: translateX(-50%);
+            left: 50%;
+            z-index: 1;
+        }
+        .step.active .step-number, .step.completed .step-number {
+            background-color: #FFD700;
+            color: #0d1117;
+        }
+        .step.active .step-title, .step.completed .step-title {
+            color: #FFD700;
+        }
+        .step:first-child .step-line { display: none; } 
+
+        /* Khu vực thông báo chính */
+        .review-status-box {
+            padding: 50px 20px;
+            text-align: center;
+        }
+        .review-icon {
+            font-size: 5rem;
+            color: #FFD700;
+            margin-bottom: 20px;
+        }
+        .review-status-box h1 {
+            color: #e6edf3;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        .review-status-box p {
+            color: #b0c2d4;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .data-sent-box {
+            background-color: #1a1a1a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 30px;
+            text-align: left;
+            border-left: 4px solid #FFD700;
+        }
+        .data-sent-box span {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 15px;
+            color: #FFD700;
+        }
+        .data-sent-box p {
+            color: #e6edf3;
+            font-weight: 600;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="kyc-header">
+        <i class="fas fa-arrow-left back-arrow" onclick="window.location.href='personal_center.html'"></i>
+        <h2>Xác minh tên thật</h2>
+    </div>
+
+    <div class="progress-steps">
+        <div class="step completed">
+            <div class="step-number"><i class="fas fa-check"></i></div>
+            <div class="step-title">Thông tin cá nhân</div>
+        </div>
+        
+        <div class="step completed">
+            <div class="step-line"></div>
+            <div class="step-number"><i class="fas fa-check"></i></div>
+            <div class="step-title">Tải giấy tờ tùy thân</div>
+        </div>
+        
+        <div class="step active">
+            <div class="step-line"></div>
+            <div class="step-number">3</div>
+            <div class="step-title">Xét duyệt</div>
+        </div>
+    </div>
+
+    <div class="review-status-box">
+        <i class="fas fa-hourglass-half review-icon"></i>
+        <h1>Thông tin đã được gửi, đang chờ xét duyệt</h1>
+        <p>Hệ thống sẽ xử lý và phản hồi trong vòng 24 giờ.</p>
+
+        <div class="data-sent-box">
+            <span>Họ Tên: <p id="review-name">N/A</p></span>
+            <span>Số: <p id="review-id">N/A</p></span>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', displayReviewData);
+        
+        function displayReviewData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const name = urlParams.get('name');
+            const id = urlParams.get('id');
+
+            if (name) {
+                document.getElementById('review-name').textContent = decodeURIComponent(name).toUpperCase();
+            }
+            if (id) {
+                document.getElementById('review-id').textContent = decodeURIComponent(id);
+            }
+            
+            // Xóa dữ liệu tạm sau khi hiển thị
+            sessionStorage.removeItem('kycFullName');
+            sessionStorage.removeItem('kycIdNumber');
+        }
+    </script>
+</body>
+</html>

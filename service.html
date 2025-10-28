@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service | CoinVid</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+    <style>
+        body { background-color: #0d1117; padding-bottom: 0; }
+        .page-header { display: flex; align-items: center; padding: 15px; background-color: #161b22; border-bottom: 1px solid #2d3840; }
+        .page-header .back-arrow { color: #e6edf3; font-size: 1.5rem; margin-right: 20px; cursor: pointer; }
+        .page-header h2 { margin: 0; font-size: 18px; color: #e6edf3; font-weight: 600; }
+
+        .chat-box {
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            margin: 30px auto;
+            padding: 30px;
+            max-width: 400px;
+            text-align: center;
+        }
+        .chat-box h3 {
+            color: #FFD700;
+            margin-top: 0;
+        }
+        .chat-box input {
+            width: 90%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background-color: #0d1117;
+            border: 1px solid #3d495a;
+            border-radius: 6px;
+            color: #e6edf3;
+            font-size: 16px;
+        }
+        .chat-box button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <i class="fas fa-arrow-left back-arrow" onclick="window.history.back()"></i>
+        <h2>Service</h2>
+    </div>
+    <div class="main-content">
+        <div class="chat-box">
+            <i class="fas fa-comments" style="color:#007bff; font-size: 3em; margin-bottom: 15px;"></i>
+            <h3>Chào mừng đến với CoinVid!</h3>
+            <p style="color: #b0c2d4;">Hân hạnh được phục vụ quý khách.</p>
+            <input type="text" placeholder="Nhập ID hoặc tên của bạn" id="chat-id">
+            <button onclick="startChat()">Bắt đầu chat</button>
+        </div>
+    </div>
+    <script>
+        function startChat() {
+            const id = document.getElementById('chat-id').value;
+            if (id) {
+                alert(`Bắt đầu chat với ID: ${id}. (Giả lập chuyển đến giao diện chat)`);
+            } else {
+                alert('Vui lòng nhập ID để bắt đầu chat.');
+            }
+        }
+    </script>
+</body>
+</html>

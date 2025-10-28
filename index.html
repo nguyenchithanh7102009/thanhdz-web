@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Chủ Game | CoinVid Clone</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="logo">
+            <span class="logo-text">💰 CoinVid</span>
+        </div>
+        <div class="header-icons">
+            <i class="fas fa-download"></i>
+        </div>
+    </header>
+
+    <section id="user-wallet-info" class="user-wallet-info-section" style="display:none;">
+        <div class="user-profile">
+            <img src="https://via.placeholder.com/60/7b4397/e6edf3?text=N" alt="Avatar" id="home-avatar" class="home-avatar">
+            <div class="name-vip">
+                <span id="home-username">Đang tải...</span>
+                <span id="home-vip" class="home-vip-tag">VIP1</span>
+            </div>
+        </div>
+        <div class="wallet-balance">
+            <span class="balance-label">Số dư:</span>
+            <span id="home-balance" class="balance-amount">...</span>
+            <span id="home-currency-symbol" class="currency-symbol">VND</span>
+            <i class="fas fa-eye balance-toggle"></i>
+        </div>
+    </section>
+
+    <section class="banner-section">
+        <div class="banner-placeholder">
+            <img src="https://via.placeholder.com/600x200/2A0F5B/FFFFFF?text=VONG+QUAY+MAY+MAN" alt="Vòng quay may mắn" class="banner-image-real">
+        </div>
+    </section>
+
+    <section class="function-icons-grid">
+        <div class="grid-item" onclick="checkLoginAndRedirect('placeholder')"><i class="fas fa-bell"></i><p>Thông báo</p></div>
+        <div class="grid-item important" onclick="checkLoginAndRedirect('deposit')"><i class="fas fa-wallet"></i><p>Nạp</p></div>
+        <div class="grid-item important" onclick="checkLoginAndRedirect('withdraw')"><i class="fas fa-money-check-alt"></i><p>Rút</p></div>
+        <div class="grid-item" onclick="checkLoginAndRedirect('activity')"><i class="fas fa-gift"></i><p>Hoạt động</p></div>
+        <div class="grid-item" onclick="checkLoginAndRedirect('invite')"><i class="fas fa-envelope"></i><p>Mời</p></div>
+        <div class="grid-item" onclick="checkLoginAndRedirect('placeholder')"><i class="fas fa-chart-line"></i><p>Thị trường</p></div>
+        <div class="grid-item" onclick="checkLoginAndRedirect('help')"><i class="fas fa-question-circle"></i><p>Trợ giúp</p></div>
+        <div class="grid-item" onclick="checkLoginAndRedirect('service')"><i class="fas fa-headset"></i><p>Service</p></div>
+    </section>
+
+    <section class="game-listing">
+        <div class="game-header">
+            <h3>👍 Phổ biến</h3>
+            <span>Tất cả</span>
+        </div>
+        <div class="games-grid">
+            <div class="game-card" onclick="checkLoginAndRedirect('game-dice')">
+                <div class="game-icon">
+                    <img src="https://via.placeholder.com/80x80/DC143C/FFFFFF?text=DICE" alt="Đen đỏ">
+                </div>
+                <p>Đen đỏ</p>
+                <span class="time">60s</span>
+            </div>
+            
+            <div class="game-card" onclick="checkLoginAndRedirect('placeholder')">
+                <div class="game-icon">
+                    <img src="https://via.placeholder.com/80x80/007bff/FFFFFF?text=Plane" alt="Nhảy dù">
+                </div>
+                <p>Nhảy dù</p>
+            </div>
+            <div class="game-card" onclick="checkLoginAndRedirect('placeholder')">
+                <div class="game-icon">
+                    <img src="https://via.placeholder.com/80x80/dc3545/FFFFFF?text=Mine" alt="Quét mìn">
+                </div>
+                <p>Quét mìn</p>
+            </div>
+            <div class="game-card" onclick="checkLoginAndRedirect('placeholder')">
+                <div class="game-icon">
+                    <img src="https://via.placeholder.com/80x80/28a745/FFFFFF?text=Coin" alt="Flip">
+                </div>
+                <p>Tung Xu</p>
+            </div>
+            <div class="game-card" onclick="checkLoginAndRedirect('placeholder')">
+                <div class="game-icon">
+                    <img src="https://via.placeholder.com/80x80/ffc107/FFFFFF?text=Wheel" alt="Wheel">
+                </div>
+                <p>Vòng Quay</p>
+            </div>
+            <div class="game-card" onclick="checkLoginAndRedirect('placeholder')">
+                <div class="game-icon">
+                    <img src="https://via.placeholder.com/80x80/17a2b8/FFFFFF?text=Cards" alt="Cards">
+                </div>
+                <p>Bài</p>
+            </div>
+        </div>
+    </section>
+    
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item active"><i class="fas fa-home"></i><p>Trang đầu</p></a>
+        <a href="#" class="nav-item" onclick="checkLoginAndRedirect('placeholder')"><i class="fas fa-exchange-alt"></i><p>Giao dịch</p></a>
+        <a href="#" class="nav-item" onclick="checkLoginAndRedirect('placeholder')"><i class="fas fa-search"></i><p>Tìm thấy</p></a>
+        <a href="#" class="nav-item" onclick="checkLoginAndRedirect('placeholder')"><i class="fas fa-comments"></i><p>Trò chuyện</p></a>
+        <a href="profile.html" class="nav-item" id="profile-link"><i class="fas fa-user"></i><p>Hồ sơ</p></a> 
+    </nav>
+    
+    <script src="script.js"></script>
+    <script>
+        // HÀM KIỂM TRA ĐĂNG NHẬP VÀ CHUYỂN HƯỚNG CÁC CHỨC NĂNG CỐT LÕI
+        function checkLoginAndRedirect(targetPage) {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                alert('Vui lòng đăng nhập để sử dụng tính năng này.');
+                window.location.href = 'login.html'; 
+            } else {
+                window.location.href = targetPage + '.html';
+            }
+        }
+    </script>
+</body>
+</html>

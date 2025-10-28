@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ | CoinVid Clone</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+    <style>
+        /* CSS Riêng cho trang Hồ sơ */
+        
+        body {
+            background-color: #0d1117; 
+            padding-top: 20px;
+            padding-bottom: 70px;
+        }
+        
+        .main-content-profile {
+            padding: 0 15px;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            padding: 0 0 30px 0;
+            cursor: pointer; 
+        }
+        
+        .profile-header a {
+             text-decoration: none;
+             color: inherit;
+        }
+
+        .avatar {
+            width: 50px; 
+            height: 50px;
+            border-radius: 50%;
+            background-color: #3d495a;
+            border: 2px solid #e6edf3; 
+            overflow: hidden;
+            margin-right: 15px;
+            position: relative;
+        }
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-info {
+            flex-grow: 1;
+        }
+        .user-info h3 {
+            margin: 0 0 5px 0;
+            font-size: 16px; 
+            color: #e6edf3;
+            font-weight: 700;
+        }
+        .user-info p {
+            margin: 0;
+            font-size: 13px;
+            color: #b0c2d4;
+            transition: color 0.2s;
+        }
+        .profile-header:hover .user-info p {
+            color: #FFD700; 
+        }
+        
+        .vip-level {
+            display: inline-block;
+            border: 1px solid #FFD700; 
+            color: #FFD700;
+            padding: 0 5px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 8px;
+            line-height: 1.5;
+        }
+        .profile-header .icon-arrow {
+            color: #b0c2d4;
+            margin-left: 10px;
+        }
+
+
+        /* Danh sách Menu Hồ sơ */
+        .profile-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0; 
+            cursor: pointer;
+            border-bottom: 1px solid #161b22; 
+        }
+        .menu-group-1 .menu-item:last-child,
+        .menu-group-2 .menu-item:last-child,
+        .menu-group-3 .menu-item:last-child {
+            border-bottom: none;
+        }
+        .menu-item:hover {
+            background-color: #1f2730; 
+            border-radius: 4px;
+        }
+
+        .menu-icon {
+            font-size: 1.2rem;
+            margin-right: 15px;
+            width: 25px;
+            text-align: center;
+        }
+        .menu-title {
+            flex-grow: 1;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        .menu-value {
+            color: #b0c2d4;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        .menu-arrow {
+            color: #b0c2d4;
+            font-size: 1rem;
+        }
+
+        .menu-group {
+            margin-bottom: 30px; 
+            padding: 5px 15px; 
+            background-color: #161b22; 
+            border-radius: 8px;
+        }
+        
+        /* CĂN CHỈNH ICON MÀU SẮC CHÍNH XÁC */
+        .icon-yellow { color: #FFD700; }
+        .icon-blue { color: #007bff; }
+        .icon-orange { color: #ff8c00; }
+        .icon-green { color: #3cb371; }
+        .icon-rocket { color: #20b2aa; }
+        .icon-globe { color: #4682b4; }
+        .icon-service { color: #dc143c; }
+        .icon-settings { color: #778899; }
+    </style>
+</head>
+<body>
+    
+    <div class="main-content-profile">
+        
+        <a href="personal_center.html" class="profile-header"> 
+            <div class="avatar">
+                <img src="https://via.placeholder.com/60/7b4397/e6edf3?text=N" alt="Avatar" id="profile-avatar">
+            </div>
+            <div class="user-info">
+                <h3><span id="profile-username">Đang tải...</span> <span id="profile-vip" class="vip-level">...</span></h3>
+                <p id="profile-level-description">Xem thông tin cá nhân của bạn</p>
+            </div>
+            <i class="fas fa-clipboard profile-icon-top" style="color:#b0c2d4; font-size: 1.5rem;"></i>
+            <i class="fas fa-chevron-right icon-arrow"></i> 
+        </a>
+
+        <div class="profile-menu">
+            
+            <div class="menu-group menu-group-1">
+                <a href="my_assets.html" class="menu-item">
+                    <span class="menu-icon icon-yellow"><i class="fas fa-wallet"></i></span>
+                    <span class="menu-title">Tài sản của tôi</span>
+                    <i class="fas fa-chevron-right menu-arrow"></i>
+                </a>
+                
+                <div class="menu-item" onclick="alert('Mở trang Chi tiết giao dịch')">
+                    <span class="menu-icon icon-blue"><i class="fas fa-receipt"></i></span>
+                    <span class="menu-title">Chi tiết giao dịch</span>
+                    <i class="fas fa-chevron-right menu-arrow"></i>
+                </div>
+            </div>
+
+            <div class="menu-group menu-group-2">
+                <div class="menu-item" onclick="alert('Mở trang Mời bạn bè')">
+                    <span class="menu-icon icon-orange"><i class="fas fa-envelope-open-text"></i></span>
+                    <span class="menu-title">Mời</span>
+                    <i class="fas fa-chevron-right menu-arrow"></i>
+                </div>
+                <div class="menu-item" onclick="alert('Mở trang Hoạt động')">
+                    <span class="menu-icon icon-green"><i class="fas fa-gift"></i></span>
+                    <span class="menu-title">Hoạt động</span>
+                    <i class="fas fa-chevron-right menu-arrow"></i>
+                </div>
+                <div class="menu-item" onclick="alert('Mở trang Thành tích')">
+                    <span class="menu-icon icon-rocket"><i class="fas fa-rocket"></i></span>
+                    <span class="menu-title">Thành tích</span>
+                    <i class="fas fa-chevron-right menu-arrow"></i>
+                </div>
+            </div>
+
+            <div class="menu-group menu-group-3">
+                <div class="menu-item" onclick="alert('Mở cài đặt Ngôn ngữ')">
+                    <span class="menu-icon icon-globe"><i class="fas fa-globe"></i></span>
+                    <span class="menu-title">Ngôn ngữ</span>
+                    <span class="menu-value">Tiếng Việt</span>
+                    <i class="fas fa-chevron-right menu-arrow"></i>
+                </div>
+                <div class="menu-item" onclick="alert('Mở dịch vụ khách hàng')">
+                    <span class="menu-icon icon-service"><i class="fas fa-headset"></i></span>
+                    <span class="menu-title">Service</span>
+                    <i class="fas fa-chevron-right menu-arrow"></i>
+                </div>
+                <a href="settings.html" class="menu-item">
+                    <span class="menu-icon icon-settings"><i class="fas fa-cog"></i></span>
+                    <span class="menu-title">Cài đặt</span>
+                    <span class="menu-value">v2.9.0</span>
+                    <i class="fas fa-chevron-right menu-arrow"></i>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item"><i class="fas fa-home"></i><p>Trang đầu</p></a>
+        <a href="#" class="nav-item"><i class="fas fa-exchange-alt"></i><p>Giao dịch</p></a>
+        <a href="#" class="nav-item"><i class="fas fa-search"></i><p>Tìm thấy</p></a>
+        <a href="#" class="nav-item"><i class="fas fa-comments"></i><p>Trò chuyện</p></a>
+        <a href="profile.html" class="nav-item active"><i class="fas fa-user"></i><p>Hồ sơ</p></a> 
+    </nav>
+    
+    <script src="script.js"></script> 
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchProfileData);
+        
+        const API_BASE_URL = 'http://localhost:3000/api'; 
+        const DEFAULT_AVATAR = "https://via.placeholder.com/60/7b4397/e6edf3?text=N";
+        
+        // Cập nhật Avatar từ LocalStorage
+        function updateAvatarUI() {
+             const savedAvatarUrl = localStorage.getItem('userAvatarUrl');
+             const avatarElement = document.getElementById('profile-avatar');
+             if (avatarElement) {
+                 avatarElement.src = savedAvatarUrl || DEFAULT_AVATAR;
+             }
+        }
+        
+        updateAvatarUI();
+
+
+        async function fetchProfileData() {
+            const token = localStorage.getItem('authToken');
+            
+            if (!token) {
+                document.getElementById('profile-username').textContent = 'Chưa đăng nhập';
+                document.getElementById('profile-vip').textContent = 'VIP0';
+                document.getElementById('profile-level-description').textContent = 'Vui lòng đăng nhập để xem hồ sơ.';
+                setTimeout(() => {
+                     if (!localStorage.getItem('authToken')) {
+                        window.location.href = 'login.html';
+                     }
+                }, 2000);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/user/profile`, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    const errorResponse = response.status === 404 ? "API Not Found" : (await response.text());
+                    
+                    if (response.status === 401 || response.status === 403) {
+                         alert('Phiên làm việc hết hạn. Vui lòng đăng nhập lại.');
+                         localStorage.removeItem('authToken');
+                         window.location.href = 'login.html';
+                         return;
+                    }
+                    
+                    document.getElementById('profile-username').textContent = `Lỗi ${response.status} Server`;
+                    document.getElementById('profile-level-description').textContent = `Kiểm tra Server (Cổng 3000).`;
+                    return;
+                }
+                
+                const userData = await response.json();
+                
+                const currentLevel = userData.vipLevel || 1;
+                const nextTarget = userData.nextVipTarget || 2;
+                
+                // CẬP NHẬT GIAO DIỆN
+                document.getElementById('profile-username').textContent = userData.username;
+                document.getElementById('profile-vip').textContent = `💎 ${currentLevel}`;
+                
+                if (currentLevel < 9) {
+                     const depositNeeded = Math.max(0, nextTarget - userData.lifetimeDeposit).toFixed(2);
+                     document.getElementById('profile-level-description').textContent = `Nạp thêm ${depositNeeded} USDT để lên VIP${currentLevel + 1}`;
+                } else {
+                     document.getElementById('profile-level-description').textContent = 'Đã đạt cấp độ VIP tối đa.';
+                }
+                
+                updateAvatarUI(); 
+
+            } catch (error) {
+                console.error('Lỗi kết nối hoặc JSON:', error);
+                document.getElementById('profile-username').textContent = 'Lỗi kết nối';
+                document.getElementById('profile-vip').textContent = '!!!';
+                document.getElementById('profile-level-description').textContent = 'Kiểm tra Server và Console (F12).';
+            }
+        }
+    </script>
+</body>
+</html>

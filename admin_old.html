@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Người dùng (Admin)</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+    <style>
+        /* CSS CHUNG */
+        body {
+            background-color: #0d1117;
+            color: #e6edf3;
+            padding-bottom: 20px;
+        }
+
+        /* STYLE ADMIN */
+        .admin-header {
+            background-color: #1a1a1a;
+            color: #FFD700;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #3d495a;
+        }
+        .admin-header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .admin-content {
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+            min-width: 900px; 
+        }
+
+        .user-table th, .user-table td {
+            border: 1px solid #2d3840;
+            padding: 10px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .user-table th {
+            background-color: #161b22;
+            color: #b0c2d4;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .user-table tr:nth-child(even) {
+            background-color: #1a1a1a;
+        }
+        .user-table tr:hover {
+            background-color: #2d3840;
+            cursor: pointer;
+        }
+
+        .status-verified { color: #90ee90; font-weight: bold; }
+        .status-unverified { color: #ff8c00; }
+        #loading-message { text-align: center; padding: 50px; color: #b0c2d4; }
+        
+        /* ********************************************** */
+        /* MODAL CHỈNH SỬA USER (USER DETAIL MODAL) */
+        /* ********************************************** */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #161b22;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            text-align: left;
+        }
+        .close-btn {
+            float: right;
+            font-size: 24px;
+            color: #FFD700;
+            cursor: pointer;
+        }
+        #user-info-display p {
+            margin: 5px 0;
+            font-size: 15px;
+            color: #b0c2d4;
+        }
+        #user-info-display strong {
+            color: #e6edf3;
+        }
+        #adjustment-amount, #adjustment-reason {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            background-color: #0d1117;
+            border: 1px solid #3d495a;
+            border-radius: 6px;
+            color: #e6edf3;
+            box-sizing: border-box;
+        }
+        #adjust-balance-btn {
+            background: #90ee90;
+            color: #161b22;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-top: 15px;
+            width: 100%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="admin-header">
+        <h1>Quản lý Người dùng (Admin)</h1>
+    </div>
+
+    <div class="admin-content">
+        <p>Dashboard: <span id="user-count">0</span> Người dùng đã đăng ký.</p>
+
+        <div id="loading-message">
+            <i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...
+        </div>
+
+        <table class="user-table" id="user-table" style="display:none;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên đăng nhập</th>
+                    <th>SĐT</th>
+                    <th>Số dư (USDT)</th>
+                    <th>Tích lũy Nạp</th>
+                    <th>VIP</th>
+                    <th>KYC</th>
+                    <th>Ngày Đăng ký</th>
+                </tr>
+            </thead>
+            <tbody id="user-table-body">
+                </tbody>
+        </table>
+    </div>
+
+    <div id="user-detail-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="document.getElementById('user-detail-modal').style.display='none'">&times;</span>
+            <h2>Chi tiết Người dùng: <span id="detail-username"></span></h2>
+            
+            <div id="user-info-display">
+                <p><strong>ID:</strong> <span id="detail-id"></span></p>
+                <p><strong>Số dư hiện tại:</strong> <span id="detail-balance"></span> USDT</p>
+                <p><strong>Tên thật (KYC):</strong> <span id="detail-kyc-name"></span></p>
+                <p><strong>SĐT:</strong> <span id="detail-phone"></span></p>
+                <p><strong>Tổng nạp:</strong> <span id="detail-deposit"></span> USDT</p>
+                <p><strong>VIP:</strong> <span id="detail-vip"></span></p>
+            </div>
+            
+            <hr style="border-color:#333; margin: 20px 0;">
+
+            <h3>Điều chỉnh Số dư (Admin)</h3>
+            <input type="number" id="adjustment-amount" placeholder="Nhập số tiền (VD: 100.00 hoặc -50.00)">
+            <input type="text" id="adjustment-reason" placeholder="Lý do điều chỉnh (Bắt buộc)">
+            <button id="adjust-balance-btn" onclick="adjustBalance()">Xác nhận Điều chỉnh</button>
+            <p id="admin-message" style="color: #90ee90; margin-top: 10px;"></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchUserList);
+        const API_BASE_URL = 'http://localhost:3000/api'; 
+        let currentUserIdToAdjust = null; // Biến lưu ID user đang được chỉnh sửa
+
+        async function fetchUserList() {
+            const loadingMsg = document.getElementById('loading-message');
+            const table = document.getElementById('user-table');
+            const tbody = document.getElementById('user-table-body');
+            const token = localStorage.getItem('authToken');
+
+            loadingMsg.style.display = 'block';
+            table.style.display = 'none';
+
+            if (!token) {
+                loadingMsg.innerHTML = 'Truy cập bị từ chối. Vui lòng đăng nhập bằng tài khoản Admin trước.';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/users`, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.status === 403) {
+                    loadingMsg.innerHTML = 'Truy cập bị từ chối: Tài khoản này không có quyền Admin.';
+                    return;
+                }
+                if (!response.ok) {
+                    throw new Error(`Server returned status ${response.status}`);
+                }
+                
+                const users = await response.json();
+                
+                document.getElementById('user-count').textContent = users.length;
+                tbody.innerHTML = ''; 
+
+                users.forEach(user => {
+                    const row = tbody.insertRow();
+                    row.onclick = () => openUserDetailModal(user); // Thêm sự kiện click
+                    
+                    const kycStatus = user.isNameVerified 
+                        ? `<span class="status-verified">Đã XM</span>` 
+                        : `<span class="status-unverified">Chưa XM</span>`;
+
+                    row.innerHTML = `
+                        <td>${user.id}</td>
+                        <td>${user.username}</td>
+                        <td>${user.phone || 'N/A'}</td>
+                        <td>${user.balance.toFixed(2)}</td>
+                        <td>${user.lifetimeDeposit.toFixed(2)}</td>
+                        <td>VIP${user.vipLevel}</td>
+                        <td>${kycStatus}</td>
+                        <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                    `;
+                });
+
+                loadingMsg.style.display = 'none';
+                table.style.display = 'table';
+
+            } catch (error) {
+                console.error('Lỗi tải dữ liệu Admin:', error);
+                loadingMsg.innerHTML = `Lỗi: Không thể kết nối với API (${error.message}). Kiểm tra server.js.`;
+            }
+        }
+        
+        function openUserDetailModal(user) {
+            currentUserIdToAdjust = user.id;
+            
+            document.getElementById('detail-username').textContent = user.username;
+            document.getElementById('detail-id').textContent = user.id;
+            document.getElementById('detail-balance').textContent = user.balance.toFixed(2);
+            document.getElementById('detail-deposit').textContent = user.lifetimeDeposit.toFixed(2);
+            document.getElementById('detail-vip').textContent = `VIP${user.vipLevel}`;
+            document.getElementById('detail-phone').textContent = user.phone || 'N/A';
+            document.getElementById('detail-kyc-name').textContent = user.isNameVerified ? 'Đã xác minh' : 'Chưa xác minh';
+
+            document.getElementById('admin-message').textContent = '';
+            document.getElementById('adjustment-amount').value = '';
+            document.getElementById('adjustment-reason').value = '';
+            
+            document.getElementById('user-detail-modal').style.display = 'flex';
+        }
+        
+        async function adjustBalance() {
+            const amountInput = document.getElementById('adjustment-amount').value;
+            const reason = document.getElementById('adjustment-reason').value;
+            const token = localStorage.getItem('authToken');
+            const messageElement = document.getElementById('admin-message');
+            
+            const amount = parseFloat(amountInput);
+
+            if (!currentUserIdToAdjust || isNaN(amount) || amount === 0) {
+                messageElement.textContent = 'Vui lòng nhập số tiền hợp lệ.';
+                messageElement.style.color = 'red';
+                return;
+            }
+            if (reason.length < 5) {
+                messageElement.textContent = 'Lý do quá ngắn.';
+                messageElement.style.color = 'red';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/adjust-balance`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ userId: currentUserIdToAdjust, amount, reason })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    messageElement.textContent = `Thành công! Số dư mới: ${data.newBalance.toFixed(2)} USDT`;
+                    messageElement.style.color = '#90ee90';
+                    
+                    // Cập nhật lại giao diện ngay lập tức
+                    document.getElementById('detail-balance').textContent = data.newBalance.toFixed(2);
+                    fetchUserList(); // Tải lại bảng chính
+                } else {
+                    messageElement.textContent = data.message || 'Lỗi điều chỉnh số dư.';
+                    messageElement.style.color = 'red';
+                }
+
+            } catch (error) {
+                messageElement.textContent = 'Lỗi kết nối Server.';
+                messageElement.style.color = 'red';
+            }
+        }
+        
+    </script>
+</body>
+</html>

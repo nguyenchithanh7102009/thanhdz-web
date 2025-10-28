@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cấp độ VIP | CoinVid Clone</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+    <style>
+        /* CSS Riêng cho trang Cấp độ VIP */
+        
+        body {
+            background-color: #0d1117; 
+            padding-bottom: 0;
+        }
+
+        /* Header cố định */
+        .vip-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #161b22;
+            border-bottom: 1px solid #2d3840;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .vip-header .back-arrow {
+            color: #e6edf3;
+            font-size: 1.5rem;
+            margin-right: 20px;
+            cursor: pointer;
+        }
+        .vip-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #e6edf3;
+            font-weight: 600;
+        }
+
+        /* KHU VỰC THÔNG TIN VIP ĐỘNG */
+        .vip-info {
+            background: linear-gradient(135deg, #161b22, #0d1117);
+            padding: 20px;
+            border-bottom: 1px solid #2d3840;
+            margin-bottom: 20px;
+        }
+        .vip-info h1 {
+            color: #FFD700;
+            font-size: 36px;
+            margin: 0 0 5px 0;
+            font-weight: 800;
+        }
+        .vip-info p {
+            margin: 0 0 15px 0;
+            font-size: 14px;
+            color: #b0c2d4;
+        }
+        
+        /* Progress Bar */
+        .progress-bar-container {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            color: #b0c2d4;
+        }
+        .progress-bar {
+            flex-grow: 1;
+            height: 8px;
+            background-color: #3d495a;
+            border-radius: 4px;
+            margin: 0 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%; /* Mặc định là 0% */
+            background: linear-gradient(90deg, #ff8c00, #FFD700);
+            border-radius: 4px;
+            transition: width 1s ease-in-out;
+        }
+        .target-text {
+             font-weight: 600;
+             color: #e6edf3;
+        }
+
+        /* Bảng Cấp bậc */
+        .vip-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #161b22;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        .vip-table th, .vip-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #2d3840;
+        }
+        .vip-table th {
+            background-color: #2d3840;
+            color: #FFD700;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .vip-table tr:last-child td {
+            border-bottom: none;
+        }
+        .vip-table td {
+            color: #b0c2d4;
+            font-size: 14px;
+        }
+        .vip-table td:first-child {
+            color: #e6edf3;
+            font-weight: 500;
+        }
+        
+        /* CĂN CHỈNH VIP LEVEL */
+        .vip-level-display {
+            display: flex;
+            align-items: center;
+            color: #FFD700; 
+        }
+        .vip-level-display i {
+            font-size: 1.1rem;
+            margin-right: 5px;
+        }
+        .vip-active {
+            color: #90ee90 !important; /* Màu xanh lá cho VIP hiện tại */
+            font-weight: 700 !important;
+        }
+
+    </style>
+</head>
+<body>
+    
+    <div class="vip-header">
+        <i class="fas fa-arrow-left back-arrow" onclick="window.history.back()"></i>
+        <h2>Cấp độ VIP</h2>
+    </div>
+
+    <div class="main-content-vip">
+        
+        <div class="vip-info">
+            <h1 id="current-vip">VIP1</h1>
+            <p>Tích lũy nạp: <span id="current-deposit">0.00</span> USDT</p>
+            
+            <div class="progress-bar-container">
+                <span id="target-text" class="target-text">VIP2 Mục tiêu : 2 USDT</span>
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <span id="progress-percent">0.00%</span>
+            </div>
+        </div>
+
+        <table class="vip-table" id="vip-table-body">
+            <thead>
+                <tr>
+                    <th>Cấp bậc</th>
+                    <th>Tiêu chuẩn thăng cấp</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchVipData);
+        const API_BASE_URL = 'http://localhost:3000/api'; 
+        const VIP_LEVELS = [
+            { level: 1, target: 0, display: 'VIP 1' },
+            { level: 2, target: 2, display: 'VIP 2' },
+            { level: 3, target: 100, display: 'VIP 3' },
+            { level: 4, target: 800, display: 'VIP 4' },
+            { level: 5, target: 5000, display: 'VIP 5' },
+            { level: 6, target: 15000, display: 'VIP 6' },
+            { level: 7, target: 100000, display: 'VIP 7' },
+            { level: 8, target: 300000, display: 'VIP 8' },
+            { level: 9, target: 800000, display: 'VIP 9' },
+        ];
+
+
+        async function fetchVipData() {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                alert('Vui lòng đăng nhập để xem cấp độ VIP.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/user/profile`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 401) {
+                    alert('Phiên làm việc hết hạn. Vui lòng đăng nhập lại.');
+                    localStorage.removeItem('authToken');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                const userData = await response.json();
+                renderVipInfo(userData);
+                renderVipTable(userData.vipLevel);
+
+            } catch (error) {
+                console.error('Lỗi khi tải dữ liệu VIP:', error);
+                alert('Lỗi kết nối server khi tải thông tin VIP.');
+            }
+        }
+
+        function renderVipInfo(user) {
+            const currentLevel = user.vipLevel;
+            const currentDeposit = user.lifetimeDeposit;
+            const nextLevelTarget = user.nextVipTarget;
+            const nextLevel = currentLevel + 1;
+            
+            // Tìm mục tiêu VIP trước đó (để tính phần trăm tiến trình)
+            const prevTarget = VIP_LEVELS.find(v => v.level === currentLevel).target || 0;
+
+            document.getElementById('current-vip').textContent = `VIP${currentLevel}`;
+            document.getElementById('current-deposit').textContent = currentDeposit.toLocaleString('en-US', {minimumFractionDigits: 2});
+
+            let progressValue, percent;
+
+            if (currentLevel >= 9) {
+                // Đã đạt VIP MAX
+                document.getElementById('target-text').textContent = 'Đã đạt cấp độ VIP tối đa!';
+                progressValue = 100;
+                percent = 100;
+            } else {
+                // Tính tiến trình: (Nạp - Mốc cũ) / (Mốc mới - Mốc cũ)
+                const range = nextLevelTarget - prevTarget;
+                const progressMade = currentDeposit - prevTarget;
+                progressValue = (progressMade / range) * 100;
+                percent = progressValue.toFixed(2);
+                
+                document.getElementById('target-text').textContent = `VIP${nextLevel} Mục tiêu : ${nextLevelTarget} USDT`;
+            }
+
+            // Cập nhật Progress Bar
+            document.getElementById('progress-percent').textContent = percent + '%';
+            document.getElementById('progress-fill').style.width = Math.min(100, progressValue) + '%';
+        }
+
+        function renderVipTable(currentLevel) {
+            const tbody = document.querySelector('#vip-table-body tbody');
+            tbody.innerHTML = ''; 
+
+            // Loại bỏ VIP1 vì nó là mặc định
+            const levelsToShow = VIP_LEVELS.filter(v => v.level >= 2); 
+
+            levelsToShow.forEach(vip => {
+                const row = document.createElement('tr');
+                
+                const levelDisplay = vip.level === currentLevel ? 'vip-active' : (vip.level < currentLevel ? 'vip-active' : '');
+                
+                row.innerHTML = `
+                    <td class="vip-level-display ${levelDisplay}"><i class="fas fa-gem"></i> VIP ${vip.level}</td>
+                    <td>Nạp ${vip.target.toLocaleString('en-US')} USDT</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+    </script> 
+</body>
+</html>

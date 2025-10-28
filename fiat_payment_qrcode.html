@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chuyển khoản | CoinVid Clone</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+    <style>
+        /* CSS Riêng cho trang QR Payment */
+        
+        body {
+            background-color: #0d1117; 
+            padding-bottom: 20px;
+        }
+        
+        /* Header (Giữ nguyên style chung) */
+        .payment-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #161b22;
+            border-bottom: 1px solid #2d3840;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .payment-header .back-arrow {
+            color: #e6edf3;
+            font-size: 1.5rem;
+            margin-right: 20px;
+            cursor: pointer;
+        }
+        .payment-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #e6edf3;
+            font-weight: 600;
+        }
+        
+        .payment-content {
+            padding: 15px;
+            max-width: 450px;
+            margin: auto;
+            background-color: #1a1a1a; 
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            color: #e6edf3; 
+            text-align: center;
+        }
+        
+        /* Đồng hồ đếm ngược */
+        .countdown-timer {
+            color: #dc3545; 
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        /* Mã tham chiếu */
+        #ref-code-title {
+            color: #b0c2d4;
+            font-size: 14px;
+            margin-bottom: 5px;
+            display: block;
+        }
+        #ref-code {
+            color: #FFD700;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: block;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        /* QR Code */
+        .qr-section {
+            padding: 15px;
+            background-color: white; 
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+        .qr-section img {
+            width: 100%;
+            max-width: 250px;
+            height: auto;
+        }
+        
+        /* Nút Download */
+        .download-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Thông tin Chuyển khoản */
+        .transfer-info-box {
+            background-color: #1a1a1a; 
+            padding: 0 15px;
+            text-align: left;
+        }
+        .transfer-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0; 
+            border-bottom: 1px dashed #2d3840;
+            align-items: center;
+        }
+        .transfer-item:last-child { border-bottom: none; }
+        .item-label {
+            color: #b0c2d4; 
+            font-size: 14px;
+            width: 35%;
+        }
+        .item-value {
+            color: #e6edf3;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: right;
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            justify-content: flex-end; 
+        }
+        .item-value.bank-name {
+            font-weight: bold;
+            color: #FFD700;
+        }
+        .item-value.amount {
+            color: #dc3545; 
+            font-weight: 900;
+        }
+        .copy-btn {
+            margin-left: 10px;
+            color: #FFD700;
+            cursor: pointer;
+            background-color: #2d3840; 
+            border: 1px solid #FFD700;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: normal;
+            white-space: nowrap;
+        }
+        
+        /* Lưu ý */
+        .warning-note {
+            text-align: left;
+            margin-top: 20px;
+            padding: 15px;
+            border-top: 1px solid #2d3840;
+            color: #b0c2d4;
+            background-color: #161b22;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        .warning-note ol {
+            padding-left: 20px;
+            margin-top: 5px;
+        }
+        .warning-note li {
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+        /* Style cho trang Thất bại */
+        .failure-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0d1117;
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            border-radius: 8px;
+        }
+        .failure-overlay h1 {
+            color: #dc3545;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
+        }
+        .failure-overlay a {
+             color: #FFD700;
+             text-decoration: none;
+             font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="payment-header">
+        <i class="fas fa-arrow-left back-arrow" onclick="window.history.back()"></i>
+        <h2>Trang chuyển khoản</h2>
+    </div>
+
+    <div class="payment-content" id="payment-content-box">
+        
+        <div id="failure-overlay" class="failure-overlay">
+            <h1>Giao dịch thất bại!</h1>
+            <p style="color: #b0c2d4; margin-bottom: 20px;">Phiên chuyển khoản đã hết hạn.</p>
+            <a href="deposit.html" style="color: #90ee90;">Tạo yêu cầu Nạp mới</a>
+        </div>
+        
+        <p class="countdown-timer">Trang chuyển khoản sẽ đóng sau <span id="countdown">10:00</span></p>
+        
+        <p id="ref-code-title" style="text-align: center;">Mã tham chiếu:</p>
+        <span id="ref-code">ZF1982512816329682945</span>
+
+        <div class="qr-section">
+            <img id="qr-code-image" src="" alt="Mã QR Chuyển khoản">
+        </div>
+        
+        <a href="#" class="download-btn"><i class="fas fa-download"></i></a>
+
+        <div class="transfer-info-box">
+            <div class="transfer-item">
+                <span class="item-label">Tên ngân hàng:</span>
+                <span class="item-value bank-name" id="bank-name">MBBank</span>
+            </div>
+            <div class="transfer-item">
+                <span class="item-label">Số tài khoản:</span>
+                <span class="item-value" id="account-number">823299999 <span class="copy-btn" onclick="copyValue('account-number')">Sao chép <i class="fas fa-copy"></i></span></span>
+            </div>
+            <div class="transfer-item">
+                <span class="item-label">Tên tài khoản:</span>
+                <span class="item-value" id="account-name">NGUYEN CHI THANH <span class="copy-btn" onclick="copyValue('account-name')">Sao chép <i class="fas fa-copy"></i></span></span>
+            </div>
+            <div class="transfer-item">
+                <span class="item-label">Số tiền chuyển:</span>
+                <span class="item-value amount" id="transfer-amount">8,766,786 VND <span class="copy-btn" onclick="copyValue('transfer-amount', true)">Sao chép <i class="fas fa-copy"></i></span></span>
+            </div>
+            <div class="transfer-item">
+                <span class="item-label">Nội dung chuyển khoản:</span>
+                <span class="item-value" id="transfer-content-dynamic"></span>
+                <span class="copy-btn" onclick="copyValue('transfer-content-dynamic')">Sao chép <i class="fas fa-copy"></i></span>
+            </div>
+        </div>
+
+        <div class="warning-note">
+            <p style="color:#FFD700; font-weight:bold;">Lưu ý:</p>
+            <ol>
+                <li>Vui lòng nhập **chính xác nội dung và số tiền** yêu cầu từ hệ thống. Thông tin không chính xác sẽ không thể tự động lên điểm.</li>
+                <li>Nếu không thể sử dụng mã QR Code, vui lòng sao chép tài khoản thanh toán.</li>
+                <li>Khi chuyển khoản không làm mới trình duyệt.</li>
+            </ol>
+        </div>
+
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', initializePaymentPage);
+
+        // ****************************************************
+        // DỮ LIỆU CÁC TÀI KHOẢN NẠP TIỀN ĐỊNH NGHĨA Ở ĐÂY
+        // ****************************************************
+        const DEPOSIT_ACCOUNTS = {
+            'MBBank': { account: '823299999', name: 'NGUYEN CHI THANH' },
+            'ViettelPay': { account: '0397333425', name: 'CHU THI TRANH' }, // Dữ liệu riêng
+            'Momo': { account: '0813326267', name: 'NGUYEN CHI THANH' },
+            // Các tài khoản MBBank xoay vòng (được chọn từ deposit_fiat_detail.html)
+            'MBBank_Extra': [
+                "5695888888", "6404567899", "327399999", "809123456"
+            ]
+        };
+        
+        // Thời gian đếm ngược (600s = 10 phút)
+        const INITIAL_COUNTDOWN_SECONDS = 600; 
+        const failureOverlay = document.getElementById('failure-overlay');
+
+        function initializePaymentPage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const amount = urlParams.get('amount') || '0';
+            const code = urlParams.get('code') || 'IY8MOI'; 
+            const channel = urlParams.get('channel') || 'V8pay - QR Bank'; // Lấy kênh nạp (V8pay, Momo, ViettelPay)
+            const accountNo = urlParams.get('account'); // Lấy số tài khoản đã được chọn (xoay vòng)
+            const bankName = urlParams.get('bank'); // Lấy tên ngân hàng/ví
+
+            const username = localStorage.getItem('lastUsername') || 'COINVID'; // Lấy tên tài khoản game
+
+            // 1. Xác định thông tin người nhận cuối cùng
+            let finalAccountInfo;
+
+            if (bankName === 'ViettelPay') {
+                finalAccountInfo = DEPOSIT_ACCOUNTS.ViettelPay;
+            } else if (bankName === 'Momo') {
+                finalAccountInfo = DEPOSIT_ACCOUNTS.Momo;
+            } else {
+                // Mặc định MBBank (dùng accountNo đã xoay vòng)
+                finalAccountInfo = {
+                    name: DEPOSIT_ACCOUNTS.MBBank.name, // Tên Mặc định NGUYEN CHI THANH
+                    account: accountNo || DEPOSIT_ACCOUNTS.MBBank.account
+                };
+            }
+            
+            // 2. Cập nhật mã và số tiền
+            const formattedAmount = parseInt(amount).toLocaleString('vi-VN');
+            document.getElementById('ref-code').textContent = code;
+            document.getElementById('transfer-amount').textContent = `${formattedAmount} VND `;
+            
+            // 3. Cập nhật Nội dung chuyển khoản: (tên tài khoản game)(mã tham chiếu)
+            const dynamicContent = `${username}${code}`;
+            document.getElementById('transfer-content-dynamic').textContent = dynamicContent;
+            
+            // 4. Cập nhật giao diện Ngân hàng
+            document.getElementById('bank-name').textContent = bankName;
+            document.getElementById('account-number').textContent = `${finalAccountInfo.account} `;
+            document.getElementById('account-name').textContent = `${finalAccountInfo.name} `;
+            
+            // 5. Tạo nội dung QR code
+            const qrData = `bankId=${bankName}&accountNo=${finalAccountInfo.account}&amount=${amount}&name=${finalAccountInfo.name}&note=${dynamicContent}`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrData)}`;
+            
+            document.getElementById('qr-code-image').src = qrUrl;
+
+            // 6. Khởi động đồng hồ
+            startCountdown();
+        }
+
+        function startCountdown() {
+            let timeLeft = INITIAL_COUNTDOWN_SECONDS;
+            const countdownElement = document.getElementById('countdown');
+
+            const interval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    countdownElement.textContent = "HẾT THỜI GIAN";
+                    failureOverlay.style.display = 'flex';
+                    return;
+                }
+
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                countdownElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                timeLeft--;
+            }, 1000);
+        }
+        
+        // Hàm Copy (Giữ nguyên logic sao chép)
+        function copyValue(elementId, isAmount = false) {
+            let element = document.getElementById(elementId);
+            let textContent = element.textContent;
+            let value;
+            
+            if (isAmount) {
+                 value = textContent.replace('VND', '').replace(/[,.]/g, '').trim();
+            } else {
+                 let copyButtonContent;
+                 if (elementId === 'transfer-content-dynamic' || elementId === 'account-number' || elementId === 'account-name' || elementId === 'transfer-amount') {
+                     copyButtonContent = element.nextElementSibling.textContent;
+                     value = textContent.replace(copyButtonContent, '').trim();
+                 } else {
+                     value = textContent.trim();
+                 }
+            }
+
+            navigator.clipboard.writeText(value).then(() => {
+                alert(`Đã sao chép thành công: ${value}`);
+            }).catch(err => {
+                alert("Lỗi sao chép! Vui lòng copy thủ công.");
+            });
+        }
+    </script>
+</body>
+</html>

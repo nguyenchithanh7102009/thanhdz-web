@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nạp USDT | CoinVid Clone</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+    <style>
+        /* CSS Riêng cho trang Nạp Crypto */
+        
+        body {
+            background-color: #0d1117; 
+            padding-bottom: 20px;
+        }
+
+        .crypto-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #161b22;
+            border-bottom: 1px solid #2d3840;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .crypto-header .back-arrow {
+            color: #e6edf3;
+            font-size: 1.5rem;
+            margin-right: 20px;
+            cursor: pointer;
+        }
+        .crypto-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #e6edf3;
+            font-weight: 600;
+            flex-grow: 1;
+            text-align: center;
+            transform: translateX(-15px);
+        }
+
+        .crypto-content {
+            padding: 15px;
+        }
+        
+        /* Tiêu đề nhóm */
+        .section-title {
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 14px;
+            margin: 20px 0 10px 0;
+        }
+        
+        /* Khu vực hiển thị địa chỉ ví */
+        .address-box {
+            background-color: #1a1a1a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .currency-selector-display {
+            border: 1px solid #3d495a;
+            padding: 10px;
+            border-radius: 6px;
+            color: #e6edf3;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        /* Style cho mục không thể chọn */
+        .currency-selector-display.locked {
+             background-color: #0d1117;
+             border-color: #2d3840;
+             color: #b0c2d4;
+        }
+
+        .wallet-address-input {
+            display: flex;
+            align-items: center;
+            background-color: #0d1117;
+            border: 1px solid #3d495a;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 13px;
+            color: #e6edf3;
+            word-break: break-all;
+        }
+        .wallet-address-input span {
+            flex-grow: 1;
+        }
+        .wallet-address-input i {
+            margin-left: 10px;
+            color: #FFD700;
+            cursor: pointer;
+        }
+        
+        .chain-note {
+            font-size: 12px;
+            color: #ff8c00;
+            margin-top: 10px;
+        }
+        
+        /* QR Code */
+        .qr-code-section {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .qr-code-section img {
+            width: 200px;
+            height: 200px;
+            border: 5px solid white;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="crypto-header">
+        <i class="fas fa-arrow-left back-arrow" onclick="window.history.back()"></i>
+        <h2>Nạp</h2>
+    </div>
+
+    <div class="crypto-content">
+        
+        <div class="section-title">Loại tiền tệ</div>
+        <div class="address-box">
+            <div class="currency-selector-display locked">
+                <span>USDT (TRC20)</span>
+                <i class="fas fa-lock"></i> 
+            </div>
+        </div>
+        
+        <div class="section-title">Địa chỉ nạp tiền (TRC20)</div>
+        <div class="address-box">
+            <div class="wallet-address-input">
+                <span id="deposit-address">TTs3zuruCNkWYq24dbgRZWMW6Vd6pcLRrX</span>
+                <i class="fas fa-copy" onclick="copyAddress('deposit-address')"></i>
+            </div>
+            <div class="chain-note">
+                Loại chuỗi hiện tại là: **TRC20**. Vui lòng đảm bảo rằng các loại chuỗi đã chọn nhất quán khi chuyển, nếu không tiền sẽ bị mất và không thể lấy lại được.
+            </div>
+        </div>
+        
+        <div class="section-title">Mã QR địa chỉ nạp tiền</div>
+        <div class="qr-code-section">
+            <img id="qr-code-image" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=TTs3zuruCNkWYq24dbgRZWMW6Vd6pcLRrX" alt="Mã QR Nạp USDT">
+        </div>
+
+    </div>
+    
+    <script>
+        // Chức năng copy địa chỉ ví
+        function copyAddress(elementId) {
+            const address = document.getElementById(elementId).textContent;
+            
+            // Sử dụng Clipboard API
+            navigator.clipboard.writeText(address).then(() => {
+                alert("Đã sao chép địa chỉ ví: " + address);
+            }).catch(err => {
+                console.error('Không thể sao chép: ', err);
+                alert("Lỗi sao chép! Vui lòng copy thủ công.");
+            });
+        }
+    </script>
+</body>
+</html>

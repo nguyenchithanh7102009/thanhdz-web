@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác minh tên thật | CoinVid Clone</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+    <style>
+        /* CSS Riêng cho trang KYC */
+        
+        body {
+            background-color: #0d1117; 
+            padding-bottom: 0;
+        }
+
+        /* Header cố định */
+        .kyc-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #161b22;
+            border-bottom: 1px solid #2d3840;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .kyc-header .back-arrow {
+            color: #e6edf3;
+            font-size: 1.5rem;
+            margin-right: 20px;
+            cursor: pointer;
+        }
+        .kyc-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #e6edf3;
+            font-weight: 600;
+            flex-grow: 1;
+            text-align: center;
+            transform: translateX(-15px);
+        }
+
+        /* Thanh Tiến trình (Progress Steps) */
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 30px;
+            background-color: #0d1117;
+        }
+        .step {
+            text-align: center;
+            position: relative;
+            color: #555;
+            font-size: 14px;
+        }
+        .step-number {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background-color: #3d495a;
+            color: #e6edf3;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            margin-bottom: 5px;
+            z-index: 2;
+            position: relative;
+        }
+        .step-title {
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .step-line {
+            position: absolute;
+            height: 2px;
+            background-color: #3d495a;
+            top: 32px;
+            width: 100%;
+            transform: translateX(-50%);
+            left: 50%;
+            z-index: 1;
+        }
+        /* Style cho bước đang hoạt động (Step 1) */
+        .step.active .step-number {
+            background-color: #FFD700;
+            color: #0d1117;
+        }
+        .step.active .step-title {
+            color: #FFD700;
+        }
+        .step:first-child .step-line { display: none; } 
+
+        /* Form nhập liệu */
+        .kyc-form {
+            padding: 20px 20px;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-group label {
+            display: block;
+            color: #FFD700; 
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            background-color: #161b22;
+            border: 1px solid #2d3840;
+            border-radius: 8px;
+            color: #e6edf3;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        /* Nút chính */
+        #next-step-btn {
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            color: #161b22;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            width: 100%;
+            font-weight: bold;
+            font-size: 17px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            margin-top: 20px;
+        }
+
+        /* Lưu ý */
+        .kyc-note {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #161b22;
+            border-radius: 8px;
+            color: #b0c2d4;
+            font-size: 14px;
+            border-left: 4px solid #ff8c00; 
+        }
+        .kyc-note i {
+            color: #ff8c00;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="kyc-header">
+        <i class="fas fa-arrow-left back-arrow" onclick="window.history.back()"></i>
+        <h2>Xác minh tên thật</h2>
+    </div>
+
+    <div class="progress-steps">
+        <div class="step active">
+            <div class="step-number">1</div>
+            <div class="step-title">Thông tin cá nhân</div>
+        </div>
+        
+        <div class="step">
+            <div class="step-line"></div>
+            <div class="step-number">2</div>
+            <div class="step-title">Tải giấy tờ tùy thân</div>
+        </div>
+        
+        <div class="step">
+            <div class="step-line"></div>
+            <div class="step-number">3</div>
+            <div class="step-title">Xét duyệt</div>
+        </div>
+    </div>
+
+    <div class="kyc-form">
+        <div class="form-group">
+            <label for="full-name">Họ Tên</label>
+            <input type="text" id="full-name" value="NGUYEN MINH QUANG" placeholder="Nhập họ tên đầy đủ" readonly> 
+        </div>
+        
+        <div class="form-group">
+            <label for="id-number">Số giấy tờ tùy thân</label>
+            <input type="text" id="id-number" placeholder="Số CMND/CCCD/Hộ chiếu">
+        </div>
+        
+        <button id="next-step-btn" onclick="goToNextStep()">Bước tiếp theo</button>
+
+        <div class="kyc-note">
+            <i class="fas fa-exclamation-triangle"></i>
+            Nếu bạn cần thay đổi tên của mình, vui lòng liên hệ với bộ phận chăm sóc khách hàng
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', checkNameVerification);
+        const API_BASE_URL = 'http://localhost:3000/api'; 
+        
+        async function checkNameVerification() {
+             const fullNameInput = document.getElementById('full-name');
+             const nextBtn = document.getElementById('next-step-btn');
+             const token = localStorage.getItem('authToken');
+
+             if (!token) {
+                 window.location.href = 'login.html';
+                 return;
+             }
+
+             try {
+                 const response = await fetch(`${API_BASE_URL}/user/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
+                 const userData = await response.json();
+                 
+                 if (response.ok && userData.isNameVerified && userData.fullName) {
+                     // Tên đã được xác minh qua liên kết thẻ ngân hàng
+                     fullNameInput.value = userData.fullName;
+                     fullNameInput.readOnly = true; 
+                     fullNameInput.style.backgroundColor = '#161b22'; 
+                     fullNameInput.style.color = '#e6edf3';
+                 } else {
+                     // Tên chưa xác minh, chuyển hướng hoặc thông báo cần liên kết thẻ
+                     fullNameInput.value = ''; 
+                     fullNameInput.placeholder = 'Vui lòng liên kết thẻ ngân hàng trước';
+                     fullNameInput.readOnly = true;
+                     nextBtn.disabled = true;
+                     nextBtn.textContent = 'Vui lòng liên kết Thẻ Ngân hàng';
+                     nextBtn.onclick = () => {
+                         alert('Bạn cần xác minh tên thật thông qua liên kết thẻ ngân hàng.');
+                         window.location.href = 'bind_card.html'; 
+                     };
+                     document.querySelector('.kyc-note').innerHTML = '<i class="fas fa-exclamation-triangle"></i> Vui lòng liên kết thẻ ngân hàng ở Trung tâm cá nhân để tự động điền Họ tên.';
+                 }
+
+             } catch (error) {
+                 console.error('Lỗi kết nối server khi kiểm tra tên thật:', error);
+                 alert('Lỗi kết nối server khi kiểm tra tên thật.');
+                 window.history.back();
+             }
+        }
+
+
+        // **********************************************
+        // LOGIC CHUYỂN SANG BƯỚC 2 (MỚI)
+        // **********************************************
+        window.goToNextStep = function() {
+            const fullName = document.getElementById('full-name').value;
+            const idNumber = document.getElementById('id-number').value;
+            
+            if (document.getElementById('next-step-btn').disabled) return; 
+
+            if (!idNumber || idNumber.length < 9) {
+                alert('Vui lòng nhập số giấy tờ tùy thân hợp lệ (ít nhất 9 ký tự).');
+                return;
+            }
+
+            // Ghi dữ liệu KYC vào session storage
+            sessionStorage.setItem('kycFullName', fullName);
+            sessionStorage.setItem('kycIdNumber', idNumber);
+
+            // CHUYỂN HƯỚNG SANG TRANG UPLOAD (Bước 2)
+            window.location.href = 'kyc_step2_upload.html'; 
+        }
+        
+    </script>
+</body>
+</html>

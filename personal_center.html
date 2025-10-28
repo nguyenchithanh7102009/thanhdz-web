@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trung tâm cá nhân | CoinVid Clone</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+    <style>
+        /* CSS Riêng cho trang Trung tâm cá nhân */
+        
+        body {
+            background-color: #0d1117; 
+            padding-bottom: 0;
+        }
+
+        /* Header cố định */
+        .personal-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #161b22;
+            border-bottom: 1px solid #2d3840;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .personal-header .back-arrow {
+            color: #e6edf3;
+            font-size: 1.5rem;
+            margin-right: 20px;
+            cursor: pointer;
+        }
+        .personal-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #e6edf3;
+            font-weight: 600;
+        }
+
+        /* Danh sách Menu Chi tiết */
+        .detail-menu {
+            list-style: none;
+            padding: 0 15px;
+            margin: 0;
+        }
+        /* Style cho thẻ a để hiển thị như div */
+        .detail-menu-item, .detail-menu a.detail-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #161b22;
+            cursor: pointer;
+            transition: background-color 0.1s;
+            text-decoration: none; 
+            color: inherit; 
+        }
+        .detail-menu-item:hover, .detail-menu a.detail-menu-item:hover {
+            background-color: rgba(22, 27, 34, 0.5);
+        }
+        .detail-menu-item:last-child, .detail-menu a.detail-menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-icon {
+            font-size: 1.2rem;
+            margin-right: 15px;
+            width: 25px;
+            text-align: center;
+        }
+        .item-title {
+            flex-grow: 1;
+            font-size: 15px;
+            font-weight: 500;
+            color: #e6edf3;
+        }
+        .item-value {
+            color: #b0c2d4;
+            font-size: 15px;
+            margin-right: 10px;
+        }
+        .item-arrow {
+            color: #b0c2d4;
+            font-size: 1rem;
+        }
+        
+        /* CÁC MÀU ICON ĐẶC TRƯNG */
+        .icon-gold { color: #FFD700; }
+        .icon-grey { color: #778899; }
+        .icon-blue-light { color: #4682b4; }
+        .icon-diamond { color: #00bcd4; }
+        .icon-security { color: #dc143c; }
+
+        /* Style đặc biệt cho Avatar và Nút Sửa */
+        .item-avatar img {
+            width: 35px;
+            height: 35px;
+            border-radius: 5px; 
+            object-fit: cover;
+            margin-right: 5px;
+        }
+        .edit-button {
+            color: #90ee90;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .verify-text {
+            color: #ff8c00;
+            font-size: 14px;
+        }
+        .verify-text.pending {
+            color: #FFD700; /* Vàng cho trạng thái Đang xét duyệt */
+        }
+        
+        /* Khoảng trống giữa các nhóm */
+        .detail-divider {
+            height: 10px;
+            background-color: #0d1117;
+        }
+        
+        /* ********************************************** */
+        /* STYLE CHO MODAL CHUNG */
+        /* ********************************************** */
+
+        .general-modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .general-modal-content {
+            background-color: #1a1a1a;
+            width: 80%;
+            max-width: 300px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            padding: 25px;
+            text-align: center;
+        }
+        .general-modal-content h3 {
+            color: #FFD700;
+            margin-top: 0;
+        }
+        .general-modal-content button {
+            background-color: #FFD700;
+            color: #161b22;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+    </style>
+</head>
+<body>
+    
+    <div class="personal-header">
+        <i class="fas fa-arrow-left back-arrow" onclick="window.location.href = 'profile.html'"></i>
+        <h2>Trung tâm cá nhân</h2>
+    </div>
+
+    <div class="main-content-personal">
+        
+        <div class="detail-menu">
+            <div class="detail-menu-item">
+                <span class="item-icon icon-gold"><i class="fas fa-user-circle"></i></span>
+                <span class="item-title">Tên tài khoản</span>
+                <span class="item-value" id="detail-username">Đang tải...</span> 
+                <i class="fas fa-chevron-right item-arrow"></i>
+            </div>
+            
+            <a href="set_avatar.html" class="detail-menu-item"> 
+                <span class="item-icon icon-grey"><i class="fas fa-camera"></i></span>
+                <span class="item-title">Hình đại diện</span>
+                <span class="item-value item-avatar"><img src="https://via.placeholder.com/60/7b4397/e6edf3?text=N" alt="Avatar" id="detail-avatar-img"></span> 
+                <i class="fas fa-chevron-right item-arrow"></i>
+            </a>
+            
+            <a href="vip_level.html" class="detail-menu-item">
+                <span class="item-icon icon-diamond"><i class="fas fa-gem"></i></span>
+                <span class="item-title">Cấp độ VIP</span>
+                <span class="item-value" id="detail-vip-level">...</span>
+                <i class="fas fa-chevron-right item-arrow"></i>
+            </a>
+            
+            <a href="kyc_verification.html" id="kyc-link-item" class="detail-menu-item">
+                <span class="item-icon icon-blue-light"><i class="fas fa-id-card"></i></span>
+                <span class="item-title">Xác minh tên thật</span>
+                <span class="item-value verify-text" id="kyc-status">Vui lòng xác thực</span>
+                <i class="fas fa-chevron-right item-arrow"></i>
+            </a>
+        </div>
+        
+        <div class="detail-divider"></div>
+
+        <div class="detail-menu">
+             <div class="detail-menu-item" onclick="showCurrencyModal()">
+                <span class="item-icon icon-gold"><i class="fas fa-money-bill-wave"></i></span>
+                <span class="item-title">Tiền tệ</span>
+                <span class="item-value" id="current-currency">VND</span> 
+                <i class="fas fa-chevron-right item-arrow"></i>
+            </div>
+            
+            <a href="bind_card.html" class="detail-menu-item">
+                <span class="item-icon icon-grey"><i class="fas fa-credit-card"></i></span>
+                <span class="item-title">Thẻ ngân hàng</span>
+                <span class="item-value edit-button">Sửa</span>
+                <i class="fas fa-chevron-right item-arrow"></i>
+            </a>
+            
+            <a href="change_phone.html" class="detail-menu-item">
+                <span class="item-icon icon-blue-light"><i class="fas fa-mobile-alt"></i></span>
+                <span class="item-title">Số điện thoại</span>
+                <span class="item-value edit-button" id="detail-phone">Sửa</span>
+                <i class="fas fa-chevron-right item-arrow"></i>
+            </a>
+            
+            <a href="set_email.html" class="detail-menu-item">
+                <span class="item-icon icon-grey"><i class="fas fa-envelope"></i></span>
+                <span class="item-title">Thư</span>
+                <span class="item-value edit-button" id="detail-email">Sửa</span>
+                <i class="fas fa-chevron-right item-arrow"></i>
+            </a>
+        </div>
+        
+        <div class="detail-divider"></div>
+
+        <div class="detail-menu">
+            <a href="change_password.html" class="detail-menu-item">
+                <span class="item-icon icon-security"><i class="fas fa-lock"></i></span>
+                <span class="item-title">Mật khẩu đăng nhập</span>
+                <span class="item-value edit-button">Sửa</span>
+                <i class="fas fa-chevron-right item-arrow"></i>
+            </a>
+            
+            <a href="set_fund_password.html" class="detail-menu-item">
+                <span class="item-icon icon-diamond"><i class="fas fa-lock"></i></span>
+                <span class="item-title">Mật khẩu quỹ</span>
+                <span class="item-value edit-button" id="fund-password-status">Sửa</span>
+                <i class="fas fa-chevron-right item-arrow"></i>
+            </a>
+        </div>
+
+    </div>
+
+    <div id="pending-modal" class="general-modal" onclick="hidePendingModal()">
+        <div class="general-modal-content" onclick="event.stopPropagation()">
+            <h3>Đang xét duyệt</h3>
+            <p style="color: #b0c2d4;">Hệ thống đang xem xét tài liệu của bạn. Vui lòng đợi.</p>
+            <button onclick="hidePendingModal()">OK</button>
+        </div>
+    </div>
+
+
+    <div id="currency-modal" class="general-modal">
+        <div class="general-modal-content currency-modal-content">
+            <div class="modal-title-bar">
+                <h3>Xin lưu ý</h3>
+                <span class="close-btn" onclick="hideCurrencyModal()">&times;</span>
+            </div>
+            
+            <div class="currency-selector-group">
+                <p>Vui lòng chọn đơn vị tiền tệ của bạn</p>
+                <select id="currency-select" size="5">
+                    <option value="VND">VND (Việt Nam)</option>
+                    <option value="USDT">USDT (Tether)</option>
+                    <option value="USD">USD (Đô la Mỹ)</option>
+                    <option value="EUR">EUR (Euro)</option>
+                    <option value="JPY">JPY (Yên Nhật)</option>
+                    <option value="BTC">BTC (Bitcoin)</option>
+                    <option value="ETH">ETH (Ethereum)</option>
+                    <option value="BNB">BNB (Binance Coin)</option>
+                    <option value="AUD">AUD (Đô la Úc)</option>
+                    <option value="CAD">CAD (Đô la Canada)</option>
+                    <option value="GBP">GBP (Bảng Anh)</option>
+                    <option value="KRW">KRW (Won Hàn Quốc)</option>
+                    <option value="SGD">SGD (Đô la Singapore)</option>
+                    <option value="HKD">HKD (Đô la Hồng Kông)</option>
+                    <option value="THB">THB (Baht Thái)</option>
+                    <option value="PHP">PHP (Peso Philippines)</option>
+                    <option value="IDR">IDR (Rupiah Indonesia)</option>
+                    <option value="MYR">MYR (Ringgit Malaysia)</option>
+                    <option value="TWD">TWD (Đài tệ)</option>
+                    <option value="RUB">RUB (Rúp Nga)</option>
+                    <option value="ZAR">ZAR (Rand Nam Phi)</option>
+                    <option value="MXN">MXN (Peso Mexico)</option>
+                    <option value="CHF">CHF (Franc Thụy Sĩ)</option>
+                    <option value="SEK">SEK (Krona Thụy Điển)</option>
+                    <option value="BRL">BRL (Real Brazil)</option>
+                    <option value="TRY">TRY (Lira Thổ Nhĩ Kỳ)</option>
+                    <option value="AED">AED (Dirham UAE)</option>
+                    <option value="SAR">SAR (Riyal Ả Rập)</option>
+                    <option value="ILS">ILS (Shekel Israel)</option>
+                    <option value="XAU">XAU (Vàng)</option>
+                </select>
+            </div>
+
+            <div class="modal-actions">
+                <button id="cancel-currency" onclick="hideCurrencyModal()">Hủy bỏ</button>
+                <button id="confirm-currency" onclick="confirmCurrencySelection()">Chắc chắn rồi</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchPersonalData);
+        const API_BASE_URL = 'http://localhost:3000/api'; 
+        
+        // --- LOGIC MODAL ---
+        function showCurrencyModal() { 
+            document.getElementById('currency-select').value = localStorage.getItem('bettingCurrency') || 'VND';
+            document.getElementById('currency-modal').style.display = 'flex';
+        }
+        function hideCurrencyModal() { document.getElementById('currency-modal').style.display = 'none'; }
+        window.hidePendingModal = function() { document.getElementById('pending-modal').style.display = 'none'; };
+
+        window.confirmCurrencySelection = function() {
+            const newCurrency = document.getElementById('currency-select').value;
+            localStorage.setItem('bettingCurrency', newCurrency);
+            document.getElementById('current-currency').textContent = newCurrency;
+            hideCurrencyModal();
+        }
+        document.getElementById('current-currency').textContent = localStorage.getItem('bettingCurrency') || 'VND';
+        
+
+        // --- CẬP NHẬT AVATAR ---
+        function updateAvatarFromStorage() {
+             const savedAvatarUrl = localStorage.getItem('userAvatarUrl');
+             const defaultAvatar = "https://via.placeholder.com/60/7b4397/e6edf3?text=N";
+             
+             const avatarImgElement = document.getElementById('detail-avatar-img');
+             if (avatarImgElement) {
+                 avatarImgElement.src = savedAvatarUrl || defaultAvatar;
+             }
+        }
+        updateAvatarFromStorage();
+
+
+        // --- LOGIC CẬP NHẬT TRẠNG THÁI ---
+        async function fetchPersonalData() {
+            const token = localStorage.getItem('authToken');
+            const kycStatusElement = document.getElementById('kyc-status');
+            const kycLinkItem = document.getElementById('kyc-link-item');
+            
+            if (!token) {
+                document.getElementById('detail-username').textContent = 'Chưa đăng nhập';
+                document.getElementById('detail-vip-level').textContent = 'VIP0';
+                return;
+            }
+
+            // ********************************************************
+            // BƯỚC 1: KIỂM TRA TRẠNG THÁI PENDING TỪ SESSION STORAGE
+            // ********************************************************
+            if (sessionStorage.getItem('isKycPending') === 'true') {
+                 kycStatusElement.textContent = 'Đang xét duyệt';
+                 kycStatusElement.classList.add('pending');
+                 kycLinkItem.onclick = (e) => { 
+                     e.preventDefault(); 
+                     document.getElementById('pending-modal').style.display = 'flex';
+                 };
+            }
+            
+            // 2. Lấy dữ liệu từ Server
+            try {
+                const response = await fetch(`${API_BASE_URL}/user/profile`, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    localStorage.removeItem('authToken');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                const userData = await response.json();
+                const currentLevel = userData.vipLevel || 1;
+                
+                document.getElementById('detail-username').textContent = userData.username;
+                document.getElementById('detail-vip-level').textContent = `VIP${currentLevel}`;
+                
+                // Cập nhật SĐT
+                const userPhone = userData.phone || '';
+                const phoneElement = document.getElementById('detail-phone');
+                if (userPhone && phoneElement) {
+                    const lastDigits = userPhone.slice(-3);
+                    phoneElement.textContent = `***${lastDigits}`;
+                } else if (phoneElement) {
+                    phoneElement.textContent = 'Sửa';
+                }
+                
+                // Cập nhật trạng thái Email
+                const emailElement = document.getElementById('detail-email');
+                if (emailElement) {
+                     emailElement.textContent = userData.email ? 'Đã gắn' : 'Sửa';
+                     emailElement.style.color = userData.email ? '#90ee90' : '#b0c2d4';
+                }
+                
+                // ********************************************************
+                // BƯỚC 2: KIỂM TRA TRẠNG THÁI KYC TỪ SERVER (Nếu không Pending)
+                // ********************************************************
+                if (sessionStorage.getItem('isKycPending') !== 'true') {
+                     if (userData.isNameVerified) {
+                        kycStatusElement.textContent = 'Đã xác thực';
+                        kycStatusElement.classList.remove('pending');
+                        kycStatusElement.style.color = '#90ee90'; // Xanh lá
+                        // Nếu đã xác thực, mục này không thể click nữa
+                        kycLinkItem.onclick = (e) => e.preventDefault(); 
+                     } else {
+                        kycStatusElement.textContent = 'Vui lòng xác thực';
+                        kycStatusElement.style.color = '#ff8c00'; // Cam
+                        kycLinkItem.onclick = null; // Cho phép chuyển hướng bình thường
+                     }
+                }
+                
+                // Cập nhật trạng thái Mật khẩu Quỹ
+                const fundStatusElement = document.getElementById('fund-password-status');
+                if (fundStatusElement) {
+                     fundStatusElement.textContent = userData.fundPasswordSet ? 'Đã đặt' : 'Sửa';
+                     fundStatusElement.style.color = userData.fundPasswordSet ? '#90ee90' : '#b0c2d4';
+                }
+
+
+            } catch (error) {
+                console.error('Lỗi khi tải dữ liệu Cá nhân:', error);
+                document.getElementById('detail-username').textContent = 'Lỗi tải dữ liệu';
+                document.getElementById('detail-vip-level').textContent = 'Lỗi';
+            }
+        }
+    </script>
+</body>
+</html>

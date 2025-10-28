@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nạp tiền | CoinVid Clone</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+    <style>
+        /* CSS Riêng cho trang Nạp tiền */
+        
+        body {
+            background-color: #0d1117; 
+            padding-bottom: 0;
+        }
+
+        .deposit-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #161b22;
+            border-bottom: 1px solid #2d3840;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .deposit-header .back-arrow {
+            color: #e6edf3;
+            font-size: 1.5rem;
+            margin-right: 20px;
+            cursor: pointer;
+        }
+        .deposit-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #e6edf3;
+            font-weight: 600;
+            flex-grow: 1;
+            text-align: center;
+            transform: translateX(-15px);
+        }
+        .deposit-header .header-icons i {
+            font-size: 1.2rem;
+            color: #FFD700;
+            margin-left: 15px;
+        }
+
+        .deposit-content {
+            padding: 15px;
+        }
+
+        /* Tiêu đề nhóm */
+        .section-title {
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 20px 0 10px 0;
+            border-left: 4px solid #FFD700;
+            padding-left: 10px;
+        }
+
+        /* Thẻ phương thức nạp */
+        .method-card {
+            background-color: #1a1a1a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: border 0.1s;
+            border: 1px solid transparent;
+        }
+        .method-card:hover {
+            border-color: #3d495a;
+        }
+        
+        .method-card h3 {
+            margin: 0;
+            font-size: 15px;
+            color: #e6edf3;
+        }
+        .method-card p {
+            margin: 5px 0 0 0;
+            font-size: 13px;
+            color: #b0c2d4;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="deposit-header">
+        <i class="fas fa-arrow-left back-arrow" onclick="window.history.back()"></i>
+        <h2>Nạp</h2>
+        <div class="header-icons">
+            <i class="fas fa-history"></i>
+            <i class="fas fa-wallet"></i>
+        </div>
+    </div>
+
+    <div class="deposit-content">
+        
+        <div class="section-title">Tiền kỹ thuật số</div>
+        <div class="method-card" onclick="window.location.href='deposit_crypto.html'"> 
+            <h3>USDT (TRC20)</h3>
+            <p>Số tiền không giới hạn - Mã xác nhận: USDT</p>
+        </div>
+
+        <div class="section-title">Nạp tiền nhanh</div>
+        
+        <div class="method-card" onclick="openFiatDeposit('V8pay - QR Bank', '50000', '3000000000')">
+            <h3>V8pay (QR Bank)</h3>
+            <p>Hạn mức: 50,000 - 3,000,000,000 VND</p>
+        </div>
+
+        <div class="method-card" onclick="openFiatDeposit('V8pay - Momo', '50000', '10000000')">
+            <h3>1VNpay - Momo</h3>
+            <p>Hạn mức: 50,000 - 10,000,000 VND</p>
+        </div>
+        
+        <div class="method-card" onclick="openFiatDeposit('ViettelPay', '50000', '100000000')">
+            <h3>ViettelPay</h3>
+            <p>Hạn mức: 50,000 - 100,000,000 VND</p>
+        </div>
+        
+    </div>
+    
+    <script>
+        function openFiatDeposit(channelName, minLimit, maxLimit) {
+            // Chuyển sang trang chi tiết, gửi thông tin kênh qua URL
+            window.location.href = `deposit_fiat_detail.html?channel=${encodeURIComponent(channelName)}&min=${minLimit}&max=${maxLimit}`;
+        }
+    </script>
+</body>
+</html>

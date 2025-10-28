@@ -1,0 +1,51 @@
+{
+    "users": [
+        {
+            "id": 0,
+            "username": "admin",
+            "password": "123456",
+            "isAdmin": true,
+            "balance": 0,
+            "lifetimeDeposit": 0,
+            "vipLevel": 0,
+            "fullName": "ADMIN HỆ THỐNG",
+            "isNameVerified": true,
+            "email": "admin@coinvid.com",
+            "fundPasswordHash": null,
+            "depositHistory": []
+        },
+        {
+            "id": 1,
+            "username": "testuser",
+            "password": "$2b$10$aKwDLdsYg.fdh26B4WTV6uTknCRYxGrRCjMhUObnrzB2SnFt0IeO.",
+            "isAdmin": false,
+            "balance": 1000,
+            "lifetimeDeposit": 10,
+            "vipLevel": 2,
+            "createdAt": "2025-10-26T18:47:34.686Z",
+            "phone": "+8490123456",
+            "fullName": null,
+            "isNameVerified": false,
+            "email": null,
+            "fundPasswordHash": null,
+            "depositHistory": []
+        },
+        {
+            "id": 2,
+            "username": "thanhdz",
+            "phone": "+84123123312",
+            "password": "$2b$10$c5ZBqb1SxtBn/KwEBz3xNeD9XQ97o20N0eyOs/yt2aGUbOP8Cj.0.",
+            "inviteCodeUsed": null,
+            "balance": 500,
+            "lifetimeDeposit": 0,
+            "vipLevel": 1,
+            "createdAt": "2025-10-26T19:04:07.870Z",
+            "fullName": null,
+            "isNameVerified": false,
+            "isAdmin": false,
+            "email": null,
+            "fundPasswordHash": null,
+            "depositHistory": []
+        }
+    ]
+}

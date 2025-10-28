@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Người dùng (Admin)</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+    <style>
+        /* CSS CHUNG */
+        body {
+            background-color: #3d495a; /* Nền tối của Dashboard */
+            color: #E0E0E0;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Thanh điều hướng Dọc (Sidebar) */
+        .admin-sidebar {
+            width: 250px;
+            background-color: #2c2c2c; /* Nền Sidebar tối hơn */
+            min-height: 100vh;
+            padding: 20px 0;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+        }
+        .sidebar-title {
+            color: #FFD700;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #4a4a4a;
+            margin-bottom: 15px;
+        }
+        .nav-item {
+            display: block;
+            padding: 12px 20px;
+            color: #E0E0E0;
+            text-decoration: none;
+            font-size: 16px;
+            border-left: 5px solid transparent;
+            transition: all 0.2s;
+            text-align: left;
+            margin: 5px 0;
+        }
+        .nav-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        .nav-item:hover:not(.active) {
+            background-color: #3d495a; /* Hover */
+        }
+        .nav-item.active {
+            background-color: #1a1a1a; /* Nền Active */
+            border-left: 5px solid #FFD700; /* Viền vàng Active */
+            color: #FFD700;
+            font-weight: bold;
+        }
+
+        /* Khu vực Nội dung chính */
+        .admin-main-content {
+            flex-grow: 1;
+            padding: 30px;
+            background-color: #1a1a1a; /* Nền nội dung chính */
+        }
+        .content-header {
+            color: #FFD700;
+            font-size: 24px;
+            border-bottom: 1px solid #3d495a;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        
+        /* Box Bảng */
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 1000px; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .user-table th, .user-table td {
+            border-bottom: 1px solid #2d3840;
+            padding: 12px 10px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .user-table th {
+            background-color: #2c2c2c;
+            color: #b0c2d4;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .user-table tr:nth-child(even) {
+            background-color: #1a1a1a;
+        }
+        .user-table tr:hover {
+            background-color: #3d495a;
+            cursor: pointer;
+        }
+
+        .user-table td {
+            color: #e6edf3;
+        }
+
+        .status-verified { color: #90ee90; font-weight: bold; }
+        .status-unverified { color: #ff8c00; }
+        
+        #loading-message { text-align: center; padding: 50px; color: #b0c2d4; }
+        
+        /* ********************************************** */
+        /* MODAL CHỈNH SỬA USER (USER DETAIL MODAL) */
+        /* ********************************************** */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #161b22;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            text-align: left;
+        }
+        .close-btn {
+            float: right;
+            font-size: 24px;
+            color: #FFD700;
+            cursor: pointer;
+        }
+        #user-info-display p {
+            margin: 5px 0;
+            font-size: 15px;
+            color: #b0c2d4;
+        }
+        #user-info-display strong {
+            color: #e6edf3;
+        }
+        /* Style cho Modal Điều chỉnh */
+        #adjustment-amount, #adjustment-reason {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            background-color: #0d1117;
+            border: 1px solid #3d495a;
+            border-radius: 6px;
+            color: #e6edf3;
+            box-sizing: border-box;
+        }
+        .adjustment-type-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .adjustment-type-group button {
+            flex-grow: 1;
+            padding: 15px 10px; 
+            border: none;
+            border-radius: 8px; 
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: opacity 0.2s;
+        }
+        .adjustment-type-group button:hover {
+            opacity: 0.9;
+        }
+        #btn-add-money {
+            background-color: #28a745; 
+            color: white;
+            box-shadow: 0 4px #1e7e34;
+        }
+        #btn-subtract-money {
+            background-color: #dc3545; 
+            color: white;
+            box-shadow: 0 4px #bd2130;
+        }
+        .adjustment-field-group {
+            display: none; 
+        }
+        /* Nút Công cụ Admin */
+        .admin-tools-group {
+             display: flex;
+             justify-content: space-between;
+             gap: 10px;
+             margin-top: 20px;
+        }
+        .admin-tools-group button {
+            flex-grow: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #btn-delete-user {
+             background-color: #dc3545;
+             color: white;
+        }
+        #btn-reset-pass {
+             background-color: #007bff;
+             color: white;
+        }
+        #btn-reset-fund {
+             background-color: #ffc107;
+             color: #161b22;
+        }
+        
+        #adjust-balance-btn {
+            background: #90ee90;
+            color: #161b22;
+            padding: 15px 20px; 
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-top: 20px; 
+            width: 100%;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+        #adjust-balance-btn:disabled {
+             opacity: 0.5;
+             cursor: not-allowed;
+        }
+        /* THIẾT LẬP LỖI CHO INPUT */
+        .input-error {
+             border-color: #dc3545 !important;
+        }
+        /* SỬA HIỂN THỊ SỐ DƯ TẠI MODAL */
+        #detail-balance {
+             font-size: 1.2rem;
+             color: #90ee90;
+        }
+        
+        /* Modal Xác nhận (Mới) */
+        #confirm-delete-modal .modal-content {
+            max-width: 400px;
+            text-align: center;
+        }
+        #confirm-delete-modal h3 {
+            color: #dc3545;
+            font-size: 1.5rem;
+            margin-top: 0;
+        }
+        .confirm-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .confirm-actions button {
+            flex-grow: 1;
+            padding: 10px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+        }
+        #cancel-delete-btn {
+            background-color: #3d495a;
+            color: #e6edf3;
+        }
+        #execute-delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+    </style>
+</head>
+<body>
+    
+    <div class="admin-sidebar">
+        <div class="sidebar-title">Admin Panel</div>
+        <a href="#" class="nav-item active" data-content="overview"><i class="fas fa-tachometer-alt"></i>Tổng Quan</a>
+        <a href="#" class="nav-item" data-content="players"><i class="fas fa-users"></i>Danh Sách Người Dùng</a>
+        <a href="#" class="nav-item" data-content="deposits"><i class="fas fa-arrow-down"></i>Lệnh Nạp</a>
+        <a href="#" class="nav-item" data-content="withdrawals"><i class="fas fa-arrow-up"></i>Lệnh Rút</a>
+        <a href="#" class="nav-item" data-content="game-control"><i class="fas fa-dice"></i>Chỉnh Cầu</a>
+        <a href="#" class="nav-item" data-content="password"><i class="fas fa-key"></i>Đổi Mật khẩu</a>
+        <a href="#" class="nav-item" id="logout-admin-btn" data-content="logout"><i class="fas fa-sign-out-alt"></i>Đăng Xuất</a>
+    </div>
+
+    <div class="admin-main-content">
+        <h2 class="content-header" id="content-title">Danh Sách Người Dùng</h2>
+        
+        <div id="overview-content" class="tab-content" style="display:none;">
+            <p style="color: white; font-size: 1.1em;">Chào mừng Admin. Vui lòng chọn chức năng bên trái!</p>
+        </div>
+        
+        <div id="players-content" class="tab-content" style="display:block;">
+            <div id="loading-message">
+                <i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...
+            </div>
+
+            <p>Tổng số Người dùng: <span id="user-count">0</span></p>
+
+            <div style="overflow-x: auto;">
+                 <table class="user-table" id="user-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên đăng nhập</th>
+                            <th>SĐT</th>
+                            <th>Số dư (USDT)</th>
+                            <th>Tích lũy Nạp</th>
+                            <th>VIP</th>
+                            <th>KYC</th>
+                            <th>Ngày ĐK</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-table-body">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="deposits-content" class="tab-content" style="display:none;"><p>Danh sách lệnh nạp...</p></div>
+        <div id="withdrawals-content" class="tab-content" style="display:none;"><p>Danh sách lệnh rút...</p></div>
+        <div id="game-control-content" class="tab-content" style="display:none;"><p>Công cụ chỉnh cầu...</p></div>
+        <div id="password-content" class="tab-content" style="display:none;"><p>Đổi mật khẩu Admin...</p></div>
+
+    </div>
+
+    <div id="user-detail-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="document.getElementById('user-detail-modal').style.display='none'">&times;</span>
+            <h2>Chi tiết Người dùng: <span id="detail-username"></span></h2>
+            
+            <div id="user-info-display">
+                <p><strong>ID:</strong> <span id="detail-id"></span></p>
+                <p><strong>Số dư hiện tại:</strong> <span id="detail-balance" style="color:#90ee90;"></span> USDT</p>
+                <p><strong>Tên thật (KYC):</strong> <span id="detail-kyc-name"></span></p>
+                <p><strong>SĐT:</strong> <span id="detail-phone"></span></p>
+                <p><strong>Tổng nạp:</strong> <span id="detail-deposit"></span> USDT</p>
+                <p><strong>VIP:</strong> <span id="detail-vip"></span></p>
+            </div>
+            
+            <hr style="border-color:#333; margin: 20px 0;">
+
+            <h3>Điều chỉnh Số dư</h3>
+            
+            <div class="adjustment-type-group">
+                <button id="btn-add-money" data-type="add"><i class="fas fa-plus"></i> Cộng tiền</button>
+                <button id="btn-subtract-money" data-type="subtract"><i class="fas fa-minus"></i> Trừ tiền</button>
+            </div>
+            
+            <div id="adjustment-fields" class="adjustment-field-group">
+                <input type="number" id="adjustment-amount" placeholder="Nhập số tiền cần cộng/trừ" required>
+                <input type="text" id="adjustment-reason" placeholder="Lý do điều chỉnh (Tùy chọn)">
+                <button id="adjust-balance-btn" onclick="adjustBalance()">Xác nhận Điều chỉnh</button>
+            </div>
+            
+            <p id="admin-message" style="color: #90ee90; margin-top: 10px;"></p>
+
+            <hr style="border-color:#333; margin: 20px 0;">
+
+            <h3>Công cụ Quản lý</h3>
+            <div class="admin-tools-group">
+                <button id="btn-reset-login-pass" onclick="resetPassword('login')"><i class="fas fa-key"></i> Reset MK Đăng nhập</button>
+                <button id="btn-reset-fund-pass" onclick="resetPassword('fund')"><i class="fas fa-lock"></i> Reset MK Quỹ</button>
+                <button id="btn-delete-user" onclick="confirmDeleteUser()"><i class="fas fa-trash-alt"></i> Xóa Tài khoản</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="confirm-delete-modal" class="modal">
+        <div class="modal-content">
+            <h3 style="color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> CẢNH BÁO</h3>
+            <p style="color: #b0c2d4;">Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản <strong id="delete-username-display"></strong> (ID: <span id="delete-id-display"></span>) không? Hành động này không thể hoàn tác.</p>
+            <div class="confirm-actions">
+                <button id="cancel-delete-btn" onclick="document.getElementById('confirm-delete-modal').style.display='none'">Hủy bỏ</button>
+                <button id="execute-delete-btn">Xóa Vĩnh viễn</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', initializeDashboard);
+        const API_BASE_URL = 'http://localhost:3000/api'; 
+        let currentUserIdToAdjust = null; 
+        let currentUsernameToDelete = ''; 
+        let currentAdjustmentSign = 0; 
+
+        function initializeDashboard() {
+            // Khởi tạo logic Sidebar
+            document.querySelectorAll('.admin-sidebar .nav-item').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const target = link.dataset.content;
+                    
+                    if (target === 'logout') {
+                        if (confirm('Bạn có chắc chắn muốn đăng xuất Admin?')) {
+                            localStorage.removeItem('authToken');
+                            localStorage.removeItem('lastUsername');
+                            window.location.href = 'index.html'; 
+                        }
+                        return;
+                    }
+                    
+                    loadTab(target);
+                    if (target === 'players') {
+                        fetchUserList();
+                    }
+                });
+            });
+            
+            setupAdjustmentModalLogic();
+
+            // Gắn sự kiện Xóa vĩnh viễn vào nút trong Modal
+            document.getElementById('execute-delete-btn').addEventListener('click', executeDeleteUser);
+
+            // Tự động tải tab Người chơi khi vào trang
+            loadTab('players');
+            fetchUserList();
+        }
+
+        function loadTab(targetId) {
+             const titleMap = {
+                 'overview': 'Tổng Quan',
+                 'players': 'Danh Sách Người Dùng',
+                 'deposits': 'Lệnh Nạp',
+                 'withdrawals': 'Lệnh Rút',
+                 'game-control': 'Chỉnh Cầu',
+                 'password': 'Đổi Mật khẩu'
+             };
+             
+             // Cập nhật tiêu đề và active link
+             document.getElementById('content-title').textContent = titleMap[targetId];
+             document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+             const targetContent = document.getElementById(targetId + '-content');
+             if (targetContent) targetContent.style.display = 'block';
+             
+             document.querySelectorAll('.admin-sidebar .nav-item').forEach(l => l.classList.remove('active'));
+             document.querySelector(`[data-content="${targetId}"]`).classList.add('active');
+        }
+        
+        function setupAdjustmentModalLogic() {
+            const fieldsGroup = document.getElementById('adjustment-fields');
+            const addButton = document.getElementById('btn-add-money');
+            const subtractButton = document.getElementById('btn-subtract-money');
+            const amountInput = document.getElementById('adjustment-amount');
+            const reasonInput = document.getElementById('adjustment-reason'); 
+            const confirmBtn = document.getElementById('adjust-balance-btn');
+            const messageElement = document.getElementById('admin-message');
+            
+            const resetForm = () => {
+                 currentAdjustmentSign = 0;
+                 fieldsGroup.style.display = 'none';
+                 addButton.classList.remove('active');
+                 subtractButton.classList.remove('active');
+                 amountInput.value = '';
+                 reasonInput.value = '';
+                 confirmBtn.disabled = true;
+            };
+
+            const toggleAdjustmentType = (isAdd) => {
+                currentAdjustmentSign = isAdd ? 1 : -1;
+                fieldsGroup.style.display = 'block'; // Hiển thị input
+                messageElement.textContent = ''; // Reset message
+                
+                // Cập nhật style nút
+                addButton.classList.toggle('active', isAdd);
+                subtractButton.classList.toggle('active', !isAdd);
+                
+                // Đảm bảo input được focus
+                amountInput.placeholder = isAdd ? 'Nhập số tiền cần cộng' : 'Nhập số tiền cần trừ';
+                amountInput.focus();
+                
+                // Kích hoạt nút xác nhận nếu có số tiền
+                confirmBtn.disabled = !(parseFloat(amountInput.value) > 0);
+            };
+            
+            // Sự kiện click nút Cộng/Trừ
+            addButton.onclick = () => toggleAdjustmentType(true);
+            subtractButton.onclick = () => toggleAdjustmentType(false);
+
+            // Xử lý đóng modal để reset form
+            document.getElementById('user-detail-modal').addEventListener('click', (e) => {
+                if (e.target.id === 'user-detail-modal' || e.target.classList.contains('close-btn')) {
+                    document.getElementById('adjustment-fields').style.display = 'none';
+                    document.getElementById('btn-add-money').classList.remove('active');
+                    document.getElementById('btn-subtract-money').classList.remove('active');
+                }
+            });
+
+            // Bật nút Xác nhận khi có số tiền
+            amountInput.addEventListener('input', () => {
+                confirmBtn.disabled = !(parseFloat(amountInput.value) > 0);
+                amountInput.classList.remove('input-error');
+            });
+        }
+
+
+        function openUserDetailModal(user) {
+            currentUserIdToAdjust = user.id;
+            currentUsernameToDelete = user.username; 
+            
+            document.getElementById('detail-username').textContent = user.username;
+            document.getElementById('detail-id').textContent = user.id;
+            document.getElementById('detail-balance').textContent = user.balance.toFixed(2);
+            document.getElementById('detail-deposit').textContent = user.lifetimeDeposit.toFixed(2);
+            document.getElementById('detail-vip').textContent = `VIP${user.vipLevel}`;
+            document.getElementById('detail-phone').textContent = user.phone || 'N/A';
+            document.getElementById('detail-kyc-name').textContent = user.isNameVerified ? 'Đã xác minh' : 'Chưa xác minh';
+
+            document.getElementById('admin-message').textContent = '';
+            document.getElementById('adjustment-amount').value = '';
+            document.getElementById('adjustment-reason').value = '';
+            
+            document.getElementById('adjustment-fields').style.display = 'none'; 
+            document.getElementById('btn-add-money').classList.remove('active');
+            document.getElementById('btn-subtract-money').classList.remove('active');
+            
+            document.getElementById('user-detail-modal').style.display = 'flex';
+        }
+        
+        async function fetchUserList() {
+            const loadingMsg = document.getElementById('loading-message');
+            const table = document.getElementById('user-table');
+            const tbody = document.getElementById('user-table-body');
+            const token = localStorage.getItem('authToken');
+
+            loadingMsg.style.display = 'block';
+            table.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/users`, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.status === 403 || response.status === 401) {
+                    loadingMsg.innerHTML = 'Truy cập bị từ chối: Vui lòng đăng nhập lại Admin.';
+                    return;
+                }
+                if (!response.ok) {
+                    throw new Error(`Server returned status ${response.status}`);
+                }
+                
+                const users = await response.json();
+                
+                document.getElementById('user-count').textContent = users.length;
+                tbody.innerHTML = ''; 
+
+                users.forEach(user => {
+                    const row = tbody.insertRow();
+                    row.onclick = () => openUserDetailModal(user); 
+                    
+                    const kycStatus = user.isNameVerified 
+                        ? `<span class="status-verified">Đã XM</span>` 
+                        : `<span class="status-unverified">Chưa XM</span>`;
+
+                    row.innerHTML = `
+                        <td>${user.id}</td>
+                        <td>${user.username}</td>
+                        <td>${user.phone || 'N/A'}</td>
+                        <td>${user.balance.toFixed(2)}</td>
+                        <td>${user.lifetimeDeposit.toFixed(2)}</td>
+                        <td>VIP${user.vipLevel}</td>
+                        <td>${kycStatus}</td>
+                        <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                    `;
+                });
+
+                loadingMsg.style.display = 'none';
+                table.style.display = 'table';
+
+            } catch (error) {
+                console.error('Lỗi tải dữ liệu Admin:', error);
+                loadingMsg.innerHTML = `Lỗi: Không thể kết nối với API (${error.message}). Kiểm tra server.js.`;
+            }
+        }
+        
+        async function adjustBalance() {
+            const amountInput = document.getElementById('adjustment-amount').value;
+            const reason = document.getElementById('adjustment-reason').value; 
+            const token = localStorage.getItem('authToken');
+            const messageElement = document.getElementById('admin-message');
+            
+            const amount = parseFloat(amountInput) * currentAdjustmentSign; 
+
+            if (!currentUserIdToAdjust || isNaN(amount) || parseFloat(amountInput) <= 0) {
+                messageElement.textContent = 'Vui lòng nhập số tiền hợp lệ (> 0).';
+                messageElement.style.color = 'red';
+                document.getElementById('adjustment-amount').classList.add('input-error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/adjust-balance`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ userId: currentUserIdToAdjust, amount, reason })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    messageElement.textContent = `Thành công! Số dư mới: ${data.newBalance.toFixed(2)} USDT`;
+                    messageElement.style.color = '#90ee90';
+                    
+                    document.getElementById('detail-balance').textContent = data.newBalance.toFixed(2);
+                    fetchUserList(); 
+                    
+                    document.getElementById('adjustment-amount').classList.remove('input-error');
+                    document.getElementById('adjustment-amount').value = '';
+                    document.getElementById('adjustment-reason').value = '';
+                } else {
+                    messageElement.textContent = data.message || 'Lỗi điều chỉnh số dư.';
+                    messageElement.style.color = 'red';
+                }
+
+            } catch (error) {
+                messageElement.textContent = 'Lỗi kết nối Server.';
+                messageElement.style.color = 'red';
+            }
+        }
+        
+        // HÀM GỌI MODAL XÁC NHẬN XÓA
+        function confirmDeleteUser() {
+             document.getElementById('delete-username-display').textContent = currentUsernameToDelete;
+             document.getElementById('delete-id-display').textContent = currentUserIdToAdjust;
+             document.getElementById('user-detail-modal').style.display = 'none'; // Ẩn modal chi tiết
+             document.getElementById('confirm-delete-modal').style.display = 'flex'; // Hiện modal xác nhận
+        }
+        
+        // HÀM THỰC HIỆN XÓA VĨNH VIỄN
+        async function executeDeleteUser() {
+             const userId = currentUserIdToAdjust;
+             const token = localStorage.getItem('authToken');
+             
+             document.getElementById('confirm-delete-modal').style.display = 'none'; // Đóng modal xác nhận
+             
+             try {
+                 const response = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
+                     method: 'DELETE',
+                     headers: { 'Authorization': `Bearer ${token}` }
+                 });
+
+                 if (response.ok) {
+                     alert(`Tài khoản ${currentUsernameToDelete} (ID: ${userId}) đã được xóa vĩnh viễn.`);
+                     document.getElementById('user-detail-modal').style.display = 'none';
+                     fetchUserList(); // Tải lại bảng
+                 } else {
+                     const data = await response.json();
+                     alert(`Lỗi xóa: ${data.message || 'Không tìm thấy người dùng hoặc lỗi server.'}`);
+                 }
+             } catch (error) {
+                 alert('Lỗi kết nối Server khi thực hiện xóa.');
+             }
+        }
+        
+        async function resetPassword(type) {
+             const action = type === 'login' ? 'Mật khẩu Đăng nhập' : 'Mật khẩu Quỹ';
+             if (!confirm(`Bạn có chắc chắn muốn RESET ${action} của user ${document.getElementById('detail-username').textContent} về 123456 không?`)) {
+                 return;
+             }
+             alert(`[GIẢ LẬP] ${action} đã được reset về 123456.`);
+        }
+        
+    </script>
+</body>
+</html>

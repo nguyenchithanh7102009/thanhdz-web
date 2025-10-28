@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập | CoinVid</title>
+    <link rel="stylesheet" href="styles.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+    
+    <style>
+        /* CSS CHO TRANG ĐĂNG NHẬP ĐỘC LẬP */
+        body {
+            padding-bottom: 0; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #0d1117; 
+        }
+        .auth-container {
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        #login-form {
+             display: block;
+        }
+        #register-form {
+             display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="logo-header">💰 CoinVid</div>
+        
+        <div id="login-form">
+            <h2>Đăng Nhập</h2>
+            <input type="text" id="login-username" placeholder="Tên đăng nhập">
+            <input type="password" id="login-password" placeholder="Mật khẩu">
+            <button id="login-btn">Đăng Nhập</button>
+            <p>Chưa có tài khoản? <a href="#" id="show-register">Đăng ký ngay</a></p>
+            <p id="login-message" class="error-message"></p>
+        </div>
+
+        <div id="register-form">
+            <h2>Đăng Ký</h2>
+            <input type="text" id="register-username" placeholder="Tên đăng nhập"> 
+            
+            <div class="phone-input-group">
+                <select id="country-code" class="country-code-select">
+                    <option value="+84" selected>🇻🇳 +84</option>
+                    <option value="+1">🇺🇸 +1</option>
+                    <option value="+44">🇬🇧 +44</option>
+                    <option value="+86">🇨🇳 +86</option>
+                    <option value="+65">🇸🇬 +65</option>
+                    <option value="+66">🇹🇭 +66</option>
+                </select>
+                <input type="tel" id="register-phone" placeholder="Số điện thoại">
+            </div>
+
+            <input type="password" id="register-password" placeholder="Mật khẩu (ít nhất 6 ký tự)">
+            <input type="password" id="register-confirm-password" placeholder="Xác nhận mật khẩu">
+            <input type="text" id="register-invite-code" placeholder="Mã mời (không bắt buộc)">
+            <button id="register-btn">Đăng Ký</button>
+            <p>Đã có tài khoản? <a href="#" id="show-login">Đăng nhập</a></p>
+            <p id="register-message" class="error-message"></p>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

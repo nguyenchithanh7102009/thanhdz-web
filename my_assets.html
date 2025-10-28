@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tài sản của tôi | CoinVid Clone</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+    <style>
+        /* CSS Riêng cho trang Tài sản */
+        
+        body {
+            background-color: #0d1117; 
+            padding-bottom: 20px; 
+        }
+
+        /* Header cố định */
+        .assets-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #161b22;
+            border-bottom: 1px solid #2d3840;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .assets-header .back-arrow {
+            color: #e6edf3;
+            font-size: 1.5rem;
+            margin-right: 20px;
+            cursor: pointer;
+        }
+        .assets-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #e6edf3;
+            font-weight: 600;
+            flex-grow: 1;
+            text-align: center;
+            transform: translateX(-15px);
+        }
+        
+        .main-assets-content {
+            padding: 15px;
+        }
+
+        /* Khu vực Tổng tài sản (Top Card) */
+        .total-assets-card {
+            background: linear-gradient(135deg, #161b22, #2d3840);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        .total-assets-card h3 {
+            margin: 0 0 5px 0;
+            font-size: 14px;
+            color: #b0c2d4;
+        }
+        .total-assets-card .total-amount {
+            font-size: 36px;
+            font-weight: 800;
+            color: #e6edf3;
+            margin-top: 5px;
+        }
+        
+        /* Chi tiết Tài khoản USDT */
+        .usdt-account-detail {
+            background-color: #161b22;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .usdt-account-detail h3 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            color: #e6edf3;
+        }
+        .balance-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-top: 1px solid #2d3840;
+        }
+        .balance-item:first-child {
+             border-top: none;
+        }
+        .item-label {
+            display: flex;
+            align-items: center;
+            color: #b0c2d4;
+            font-size: 14px;
+        }
+        .item-label i {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+        .item-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #90ee90; /* Màu xanh lá cho số tiền */
+        }
+        .item-value.locked {
+             color: #ff8c00;
+        }
+        
+        /* Nút Nạp/Rút */
+        .asset-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .asset-actions button {
+            flex-grow: 1;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: opacity 0.2s;
+        }
+        #deposit-btn {
+            background-color: #FFD700;
+            color: #161b22;
+            border: none;
+        }
+        #withdraw-btn {
+            background-color: #3d495a;
+            color: #e6edf3;
+            border: none;
+        }
+
+        /* Ước tính tài sản khác */
+        .other-assets-section {
+            background-color: #161b22;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .other-assets-section h3 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            color: #b0c2d4;
+        }
+        .dropdown-toggle {
+            cursor: pointer;
+            text-align: center;
+            padding-top: 15px;
+            color: #b0c2d4;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="assets-header">
+        <i class="fas fa-arrow-left back-arrow" onclick="window.history.back()"></i>
+        <h2>Tài sản của tôi</h2>
+    </div>
+
+    <div class="main-assets-content">
+        
+        <div class="total-assets-card">
+            <h3>Tổng tài sản (USDT)</h3>
+            <div class="total-amount">≈ <span id="total-assets">0.000</span></div>
+        </div>
+
+        <div class="usdt-account-detail">
+            <h3>Tài khoản USDT</h3>
+            <div class="total-amount" style="font-size: 24px; margin-bottom: 20px;"><span id="usdt-total-balance">0.000</span></div>
+
+            <div class="balance-item">
+                <span class="item-label"><i class="fas fa-coins" style="color:#FFD700;"></i> Khả dụng</span>
+                <span class="item-value" id="available-balance">0.000</span>
+            </div>
+            <div class="balance-item">
+                <span class="item-label"><i class="fas fa-box" style="color:#4682b4;"></i> Đóng băng (tạm khóa)</span>
+                <span class="item-value locked" id="frozen-balance">0.000</span>
+            </div>
+            <div class="balance-item">
+                <span class="item-label"><i class="fas fa-redo-alt" style="color:#dc143c;"></i> Vòng cược chưa hoàn thành <i class="fas fa-question-circle" style="font-size: 0.8rem;"></i></span>
+                <span class="item-value" id="uncompleted-wagering">0.000</span>
+            </div>
+            
+            <div class="asset-actions">
+                <button id="deposit-btn" onclick="redirectTo('deposit.html')">Nạp</button>
+                <button id="withdraw-btn" onclick="redirectTo('withdraw.html')">Rút</button>
+            </div>
+        </div>
+
+        <div class="other-assets-section">
+            <h3>Ước tính các tài sản khác(USDT)</h3>
+            <div class="total-amount" style="font-size: 24px;"><span id="other-assets-total">0.000</span></div>
+            
+            <div class="dropdown-toggle" onclick="alert('Mở danh sách tài sản khác')">
+                Danh sách tài sản <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchMyAssets);
+        const API_BASE_URL = 'http://localhost:3000/api'; 
+        
+        // HÀM CHUYỂN HƯỚNG MỚI
+        function redirectTo(page) {
+            window.location.href = page;
+        }
+        
+        async function fetchMyAssets() {
+            const token = localStorage.getItem('authToken');
+            
+            if (!token) {
+                window.location.href = 'login.html'; 
+                return;
+            }
+
+            try {
+                // Sử dụng API /user/profile hiện có để lấy balance
+                const response = await fetch(`${API_BASE_URL}/user/profile`, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                     if (response.status === 401 || response.status === 403) {
+                         localStorage.removeItem('authToken');
+                         window.location.href = 'login.html';
+                         return;
+                    }
+                    throw new Error('Lỗi tải dữ liệu tài sản.');
+                }
+                
+                const userData = await response.json();
+                
+                // *** GIẢ LẬP DỮ LIỆU CẦN THIẾT CHO TRANG NÀY ***
+                // ĐÃ SỬA: Loại bỏ giá trị 0.009 USDT cố định
+                const available = userData.balance || 0;
+                const frozen = 0.000; 
+                const wagering = 0.000; 
+                
+                // Tổng tài sản
+                const totalAssets = available + frozen + wagering;
+
+                // CẬP NHẬT GIAO DIỆN
+                document.getElementById('total-assets').textContent = totalAssets.toFixed(3);
+                document.getElementById('usdt-total-balance').textContent = totalAssets.toFixed(3);
+                document.getElementById('available-balance').textContent = available.toFixed(3);
+                document.getElementById('frozen-balance').textContent = frozen.toFixed(3);
+                document.getElementById('uncompleted-wagering').textContent = wagering.toFixed(3);
+                
+                document.getElementById('other-assets-total').textContent = '0.000';
+
+
+            } catch (error) {
+                console.error('Lỗi khi tải dữ liệu Tài sản:', error);
+                document.getElementById('total-assets').textContent = 'Lỗi';
+                document.getElementById('usdt-total-balance').textContent = '0.000';
+            }
+        }
+        
+    </script> 
+</body>
+</html>
