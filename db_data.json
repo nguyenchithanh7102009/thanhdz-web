@@ -144,6 +144,23 @@
             "depositHistory": [],
             "bankName": "VPBank",
             "accountNumber": "332132"
+        },
+        {
+            "id": 11,
+            "username": "thanhdz432",
+            "phone": "+844535345545",
+            "password": "$2b$10$PFrzReZ2HpGYb5q.jSlqduZ48dkU59.LRkO1Vp/G0cLxBc8Ff1fKq",
+            "inviteCodeUsed": null,
+            "balance": 0,
+            "lifetimeDeposit": 0,
+            "vipLevel": 1,
+            "createdAt": "2025-10-28T06:21:55.165Z",
+            "fullName": null,
+            "isNameVerified": false,
+            "isAdmin": false,
+            "email": null,
+            "fundPasswordHash": null,
+            "depositHistory": []
         }
     ]
 }

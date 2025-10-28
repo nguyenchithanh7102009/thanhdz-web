@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đen Đỏ | Tài Xỉu</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Đỏ Đen | Tài Xỉu</title>
+    <link rel="stylesheet" href="styles.css"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
     <style>
-        /* CSS CHỈ DÀNH CHO TRANG GAME DICE */
+        /* CSS DỰA TRÊN game-dice.html CŨ VÀ TỐI ƯU */
         
         body {
             background-color: #0d1117; 
@@ -17,7 +17,7 @@
             min-height: 100vh;
         }
 
-        /* Header (Thanh trên cùng) */
+        /* HEADER (Loại bỏ Sảnh) */
         .game-header {
             display: flex;
             align-items: center;
@@ -41,7 +41,21 @@
             font-weight: 600;
             flex-grow: 1;
             text-align: center;
-            transform: translateX(-15px);
+            /* Căn giữa tuyệt đối */
+            transform: translateX(-15px); 
+        }
+        .game-header #history-btn {
+             background-color: #3d495a;
+             color: #e6edf3;
+             padding: 8px 12px;
+             border: none;
+             border-radius: 6px;
+             font-weight: bold;
+             cursor: pointer;
+             transition: transform 0.1s;
+        }
+        .game-header #history-btn:hover {
+             transform: translateY(-1px);
         }
 
         .game-container {
@@ -49,93 +63,102 @@
             flex-grow: 1;
         }
 
-        /* Khu vực Số dư và Hành động */
-        .wallet-action-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            background-color: #161b22;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Shadow tinh tế */
-        }
-        .wallet-action-bar > div {
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: #b0c2d4;
-        }
-        #current-balance-display {
-            font-size: 1.6rem;
-            font-weight: bold;
-            color: #90ee90;
-            margin-left: 5px;
-        }
-        .action-buttons button, .action-buttons a button {
-            padding: 8px 12px;
-            margin-left: 10px;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-            transition: transform 0.1s;
-        }
-        .action-buttons button:hover, .action-buttons a button:hover {
-            transform: translateY(-1px);
-        }
-        #history-btn {
-            background-color: #3d495a;
-            color: #e6edf3;
-        }
-        #lobby-btn {
-            background-color: #FFD700;
-            color: #161b22;
-        }
-
-        /* Khu vực Đếm ngược và Trạng thái */
-        .countdown-status-box {
-            background: linear-gradient(145deg, #161b22, #0d1117); /* Gradient nhẹ */
+        /* --- SỬA CẤU TRÚC: TIMER & DICE --- */
+        .top-info-area {
+            background: linear-gradient(145deg, #161b22, #0d1117);
             padding: 20px 15px;
             border-radius: 10px;
             text-align: center;
             margin-bottom: 20px;
             border: 1px solid #2d3840;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); /* Chiều sâu */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        .session-timer-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
         }
         #game-status {
             font-size: 1.2rem;
             font-weight: 600;
             color: #b0c2d4;
-            margin-bottom: 8px;
+        }
+        #current-session-id {
+            color: #FFD700;
         }
         #countdown-timer {
-            font-size: 4rem;
+            font-size: 2.5rem; /* Nhỏ hơn để vừa với trạng thái */
             font-weight: 900;
             color: #FFD700;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); /* Hiệu ứng sáng */
-            letter-spacing: 2px;
-        }
-        .history-link-bar {
-             font-size: 0.9rem;
-             color: #b0c2d4;
-             padding-top: 10px;
-             cursor: pointer;
-             border-top: 1px solid #2d3840;
-             margin-top: 15px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            letter-spacing: 1px;
         }
 
-        /* Khu vực Đặt cược */
-        .betting-area {
+        /* XÚC XẮC VÀ KẾT QUẢ */
+        .dice-result-area {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .dice-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            min-height: 80px;
+        }
+        .dice {
+            width: 50px;
+            height: 50px;
+            background-color: #4a4a7a;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #ffffff;
+            border: 2px solid #6a6ad0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.5s ease;
+        }
+        .dice.rolling {
+            /* Hiệu ứng lắc sẽ được thêm trong JS */
+            background-color: #ff9800; 
+        }
+        
+        #result-summary {
+             font-size: 1.5rem;
+             font-weight: bold;
+             color: #90ee90;
+             min-height: 1.5em;
+        }
+        /* Chi tiết kết quả (Đỏ/Đen/Tài/Xỉu) */
+        .result-tags {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 1em;
+            font-weight: 600;
+        }
+        .result-tag {
+            padding: 5px 10px;
+            border-radius: 5px;
+            background-color: #3d495a;
+        }
+
+        /* --- KHU VỰC ĐẶT CƯỢC --- */
+        .betting-area {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 15px;
             margin-bottom: 20px;
         }
         .bet-option {
-            flex-grow: 1;
             padding: 25px 10px;
-            border-radius: 12px; /* Bo góc nhiều hơn */
+            border-radius: 12px;
             font-size: 2rem;
             font-weight: bold;
             cursor: pointer;
@@ -144,14 +167,9 @@
             border: 3px solid transparent;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            text-align: center;
         }
-        #btn-tai { 
-            background: linear-gradient(145deg, #FF6347, #DC143C); /* Gradient Đỏ */
-        } 
-        #btn-xiu { 
-            background: linear-gradient(145deg, #50C878, #2E8B57); /* Gradient Xanh Lá */
-        } 
-        .bet-option:hover {
+        .bet-option:hover:not(.disabled) {
             transform: translateY(-3px);
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.6);
         }
@@ -159,67 +177,49 @@
             border-color: #FFD700;
             transform: scale(1.02);
         }
+        /* Màu sắc TÀI/XỈU */
+        #btn-tai { background: linear-gradient(145deg, #FF6347, #DC143C); } 
+        #btn-xiu { background: linear-gradient(145deg, #50C878, #2E8B57); } 
+        .bet-option.disabled { opacity: 0.5; cursor: not-allowed; }
 
-
-        /* Nút Cược Nhanh */
-        .quick-bet-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px; /* Tăng khoảng cách */
-            margin-bottom: 20px;
+        /* KHU VỰC LỊCH SỬ CẦU MỚI */
+        .history-section {
+            background-color: #1e1e3e;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 1px solid #3a3a6a;
         }
-        .quick-bet-grid button {
-            padding: 12px 5px;
-            background-color: #2d3840;
-            color: #FFD700;
-            border: none;
-            border-radius: 8px;
+        .history-section h3 {
+             color: #FFD700;
+             margin-top: 0;
+             margin-bottom: 10px;
+             font-size: 1.2rem;
+             text-align: center;
+        }
+        .history-grid {
+            display: flex;
+            overflow-x: auto;
+            gap: 5px;
+            padding-bottom: 5px;
+        }
+        .history-item {
+            min-width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
             font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            transition: background-color 0.1s;
+            color: white;
+            flex-shrink: 0;
         }
-        .quick-bet-grid button:hover {
-            background-color: #3d495a;
-        }
-        #btn-all-in {
-            grid-column: span 3;
-            background: linear-gradient(90deg, #B8860B, #FFC107); /* Gradient All In */
-            color: #161b22;
-        }
-
-        /* Nút Đặt cược và Thông báo */
-        #bet-info-staged {
-            color: #FFD700;
-            font-weight: 600;
-            min-height: 20px;
-            margin-bottom: 15px;
-        }
-        #btn-confirm-bet {
-            background: linear-gradient(90deg, #FFD700, #FFA500);
-            color: #161b22;
-            padding: 18px; /* Tăng padding */
-            border: none;
-            border-radius: 8px;
-            width: 100%;
-            font-weight: 900; /* Cực đậm */
-            font-size: 1.2rem;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-            transition: transform 0.2s;
-        }
-        #btn-confirm-bet:disabled {
-            background: #555 !important;
-            color: #999 !important;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-        #bet-message {
-            color: #90ee90;
-            margin-top: 10px;
-            font-weight: 500;
-            min-height: 20px;
-        }
+        /* Màu sắc cho Lịch sử Cầu */
+        .history-item.Lớn { background-color: #FF6347; }
+        .history-item.Nhỏ { background-color: #50C878; }
+        .history-item.Lẻ { background-color: #ff9800; }
+        .history-item.Chẵn { background-color: #2196F3; }
     </style>
 </head>
 <body>
@@ -227,31 +227,40 @@
     <div class="game-header">
         <i class="fas fa-arrow-left back-arrow" onclick="window.history.back()"></i>
         <h2>TÀI XỈU 🎲</h2>
+        <button id="history-btn" onclick="alert('Mở Lịch sử cược')">LỊCH SỬ</button>
     </div>
 
     <div class="game-container">
         
-        <div class="wallet-action-bar">
+        <div class="wallet-action-bar" style="display:none;">
             <div>
                 Số dư: <span id="current-balance-display">0.00</span> USDT
             </div>
-            <div class="action-buttons">
-                <button id="history-btn" onclick="alert('Mở Lịch sử cược')">LỊCH SỬ</button>
-                <a href="index.html" id="lobby-btn"><button>SẢNH</button></a>
+        </div>
+
+        <div class="top-info-area">
+            <div class="session-timer-bar">
+                <div id="game-status">MỞ CƯỢC (Phiên: <span id="current-session-id">#...</span>)</div>
+                <div id="countdown-timer">50</div>
+            </div>
+
+            <div class="dice-result-area">
+                <div class="dice-container" id="dice-container">
+                    <div class="dice" id="dice-1">?</div>
+                    <div class="dice" id="dice-2">?</div>
+                    <div class="dice" id="dice-3">?</div>
+                </div>
+                <div id="result-summary">Sẵn sàng đặt cược...</div>
+                <div class="result-tags" id="result-tags">
+                    </div>
             </div>
         </div>
 
-        <div class="countdown-status-box">
-            <div id="game-status">MỞ CƯỢC (#1761501597)</div>
-            <div id="countdown-timer">00:38</div>
-            <div class="history-link-bar" onclick="alert('Mở lịch sử phiên')">Lịch Sử Phiên</div>
-        </div>
-
         <div class="betting-area">
-            <div id="btn-tai" class="bet-option" data-type="tai">👑 TÀI</div>
-            <div id="btn-xiu" class="bet-option" data-type="xiu">💰 XỈU</div>
+            <div id="btn-tai" class="bet-option" data-type="tai">TÀI (LỚN)</div>
+            <div id="btn-xiu" class="bet-option" data-type="xiu">XỈU (NHỎ)</div>
         </div>
-
+        
         <div class="quick-bet-grid">
             <button data-amount="1000">1K</button>
             <button data-amount="10000">10K</button>
@@ -266,121 +275,15 @@
         <button id="btn-confirm-bet" disabled>ĐẶT CƯỢC</button>
         <div id="bet-message">Chọn cửa & mức cược!</div>
 
+
+        <div class="history-section">
+            <h3>Lịch sử Cầu (50 phiên gần nhất)</h3>
+            <div class="history-grid" id="history-grid">
+                </div>
+        </div>
+
     </div>
-
-    <script src="script.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', initializeGameLogic);
-        const API_BASE_URL = 'http://localhost:3000/api'; 
-        
-        // BIẾN TRẠNG THÁI GAME
-        let virtualBalance = 0;
-        let stagedBetAmount = 0;
-        let selectedBetType = null;
-        let isBettingOpen = true; // Giả lập đang mở cược
-
-        // --- HÀM CẬP NHẬT GIAO DIỆN ---
-        const updateStagedInfoDisplay = () => {
-             const infoElement = document.getElementById('bet-info-staged');
-             if (selectedBetType) {
-                infoElement.textContent = `Chọn cược: ${stagedBetAmount.toLocaleString()} VND vào ${selectedBetType.toUpperCase()}`;
-             } else {
-                infoElement.textContent = 'Chọn cửa & mức cược';
-             }
-             document.getElementById('btn-confirm-bet').disabled = stagedBetAmount <= 0 || !selectedBetType || !isBettingOpen;
-        };
-
-        const setBalance = (newBalance) => {
-            virtualBalance = newBalance;
-            document.getElementById('current-balance-display').textContent = newBalance.toFixed(2).toLocaleString();
-        };
-
-        // --- HÀM KHỞI TẠO LOGIC ---
-        async function initializeGameLogic() {
-            const token = localStorage.getItem('authToken');
-            if (!token) {
-                alert('Phiên hết hạn. Vui lòng đăng nhập lại.');
-                window.location.href = 'login.html';
-                return;
-            }
-
-            // 1. Tải số dư ban đầu
-            try {
-                const response = await fetch(`${API_BASE_URL}/user/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
-                const userData = await response.json();
-                if (response.ok && userData.balance !== undefined) {
-                    setBalance(userData.balance);
-                }
-            } catch (e) {
-                alert('Lỗi tải dữ liệu số dư. Kiểm tra server.');
-            }
-
-            // 2. Xử lý nút Tài/Xỉu
-            document.querySelectorAll('.bet-option').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    if (!isBettingOpen) return;
-                    document.querySelectorAll('.bet-option').forEach(b => b.classList.remove('selected'));
-                    btn.classList.add('selected');
-                    selectedBetType = btn.dataset.type;
-                    updateStagedInfoDisplay();
-                });
-            });
-
-            // 3. Xử lý Nút Cược Nhanh
-            document.querySelectorAll('.quick-bet-grid button').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    if (!isBettingOpen) return;
-                    const amountAttr = btn.dataset.amount;
-                    let amount;
-
-                    if (btn.id === 'btn-all-in') {
-                         amount = virtualBalance;
-                    } else {
-                         amount = parseInt(amountAttr);
-                    }
-                    
-                    stagedBetAmount += amount;
-                    if (stagedBetAmount > virtualBalance) stagedBetAmount = virtualBalance;
-
-                    updateStagedInfoDisplay();
-                });
-            });
-
-            // 4. Xử lý Nút Đặt Cược Chính (Giả lập)
-            document.getElementById('btn-confirm-bet').addEventListener('click', () => {
-                if (!isBettingOpen || stagedBetAmount <= 0 || !selectedBetType) return;
-                
-                // --- PHẦN GỌI API ĐẶT CƯỢC CỦA BẠN SẼ ĐƯỢC CHÈN VÀO ĐÂY ---
-                document.getElementById('bet-message').textContent = `Đã gửi cược ${stagedBetAmount.toLocaleString()} vào ${selectedBetType.toUpperCase()}. (Giả lập)`;
-                
-                // Trừ tiền và reset staged amount (giả lập)
-                virtualBalance -= stagedBetAmount;
-                setBalance(virtualBalance);
-                
-                stagedBetAmount = 0;
-                document.querySelectorAll('.bet-option').forEach(b => b.classList.remove('selected'));
-                selectedBetType = null;
-                updateStagedInfoDisplay();
-            });
-
-
-            // GIẢ LẬP ĐẾM NGƯỢC
-            let timeLeft = 38;
-            const timerElement = document.getElementById('countdown-timer');
-            const interval = setInterval(() => {
-                if (timeLeft > 0) {
-                    timeLeft--;
-                    timerElement.textContent = `00:${timeLeft.toString().padStart(2, '0')}`;
-                } else {
-                    clearInterval(interval);
-                    document.getElementById('game-status').textContent = 'ĐÃ ĐÓNG CƯỢC';
-                    document.getElementById('btn-confirm-bet').disabled = true;
-                    isBettingOpen = false;
-                    // TẠM THỜI: Tải lại trang sau 10s để reset
-                    setTimeout(() => window.location.reload(), 10000); 
-                }
-            }, 1000);
-        }
-    </script>
+    
+    <script src="game-dice-logic.js"></script>
 </body>
 </html>
