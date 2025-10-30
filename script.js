@@ -1,6 +1,6 @@
 // script.js
 document.addEventListener('DOMContentLoaded', () => {
-    const API_BASE_URL = 'https://api.coinwit.net'; 
+    const API_BASE_URL = 'http://localhost:3000/api'; 
     
     // **********************************************
     // HÀM HỖ TRỢ CHUNG

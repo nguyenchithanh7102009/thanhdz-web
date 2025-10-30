@@ -322,25 +322,19 @@ app.post('/api/wallet/withdraw', authenticateToken, async (req, res) => {
 
 
 // ROUTE GIẢ LẬP LIÊN KẾT THẺ NGÂN HÀNG (Xác thực Tên thật)
-// server.js - ĐOẠN CODE CẦN SỬA
-
-// ROUTE GIẢ LẬP LIÊN KẾT THẺ NGÂN HÀNG (Xác thực Tên thật)
 app.post('/api/wallet/bind-card', authenticateToken, (req, res) => {
     const { bankName, accountNumber, fullName } = req.body;
     const user = req.user;
-    
-    // Đã XÓA KIỂM TRA: if (user.isNameVerified) { return res.status(400).json({ message: 'Tên thật đã được xác minh trước đó.' }); }
-    
+    if (user.isNameVerified) { return res.status(400).json({ message: 'Tên thật đã được xác minh trước đó.' }); }
     if (!bankName || !accountNumber || !fullName) { return res.status(400).json({ message: 'Vui lòng điền đủ thông tin ngân hàng và Họ tên.' }); }
 
-    // Cập nhật giá trị mới
     user.fullName = fullName.toUpperCase();
     user.isNameVerified = true;
-    user.bankName = bankName; // Lưu tên Ngân hàng mới
-    user.accountNumber = accountNumber; // Lưu số tài khoản mới
+    user.bankName = bankName;
+    user.accountNumber = accountNumber;
 
     saveUsers(); 
-    res.json({ message: 'Cập nhật liên kết thẻ thành công.', fullName: user.fullName });
+    res.json({ message: 'Liên kết thẻ thành công. Họ tên đã được xác thực.', fullName: user.fullName });
 });
 
 // ROUTE ĐẶT/ĐỔI MẬT KHẨU QUỸ
